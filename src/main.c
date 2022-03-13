@@ -1,6 +1,6 @@
 #include "stm32f1xx_hal.h"
 #include "st7735.h"
-#include "../lib/model/headers/gpio.h"
+#include "gpio.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
