@@ -63,7 +63,11 @@ int main(void) {
     ST7735_Init();
 
     ST7735_FillScreen(ST7735_BLACK);
-    ST7735_DrawImage(50, 100, 64, 64, guineaPig);
+    while (1) {
+        ST7735_DrawImage(0, 127, 128, 128, pingiwin);
+        HAL_Delay(1000);
+        ST7735_FillScreen(ST7735_GREEN);
+    }
 }
 
 void SysTick_Handler(void) {
