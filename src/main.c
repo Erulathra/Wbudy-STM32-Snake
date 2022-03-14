@@ -8,11 +8,13 @@
 #pragma ide diagnostic ignored "EndlessLoop"
 
 SPI_HandleTypeDef spi;
+DMA_HandleTypeDef dma3;
 
 void SystemClock_Config(void);
 void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
+void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle);
 
 int main(void) {
     HAL_Init();
@@ -22,19 +24,23 @@ int main(void) {
     GPIO_INIT();
 
     SPI_INIT();
+    HAL_SPI_MspInit(&spi);
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
     }
-
 
 
     ST7735_Init();
 
     ST7735_FillScreen(ST7735_BLACK);
     while (1) {
-        ST7735_DrawImage(0, 127, 128, 128, pingiwin);
+        ST7735_DrawImage(0, 0, 128, 128, swinek);
         HAL_Delay(1000);
-        ST7735_FillScreen(ST7735_GREEN);
+        ST7735_FillScreen(ST7735_BLUE);
+        HAL_Delay(1000);
+        ST7735_DrawImage(0, 0, 128, 128, pingiwin);
+        HAL_Delay(1000);
+
     }
 }
 
@@ -89,14 +95,16 @@ void SysTick_Handler(void) {
 }
 
 void HardFault_Handler(void) {
-    HAL_Delay(1000);
+}
 
+void DMA1_Channel3_IRQHandler(void)
+{
+    HAL_DMA_IRQHandler(&dma3);
 }
 
 #pragma clang diagnostic pop
 
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -110,28 +118,24 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
 
     }
 
     /** Initializes the CPU, AHB and APB buses clocks
     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
 
     }
 }
 
-void MX_DMA_Init(void)
-{
+void MX_DMA_Init(void) {
 
     /* DMA controller clock enable */
     __HAL_RCC_DMA1_CLK_ENABLE();
@@ -141,4 +145,36 @@ void MX_DMA_Init(void)
     HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
+}
+
+void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle) {
+
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    if (spiHandle->Instance == SPI1) {
+        /* USER CODE BEGIN SPI1_MspInit 0 */
+
+        /* USER CODE END SPI1_MspInit 0 */
+        /* SPI1 clock enable */
+        __HAL_RCC_SPI1_CLK_ENABLE();
+
+        /* SPI1 DMA Init */
+        /* SPI1_TX Init */
+
+        dma3.Instance = DMA1_Channel3;
+        dma3.Init.Direction = DMA_MEMORY_TO_PERIPH;
+        dma3.Init.PeriphInc = DMA_PINC_DISABLE;
+        dma3.Init.MemInc = DMA_MINC_ENABLE;
+        dma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        dma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+        dma3.Init.Mode = DMA_NORMAL;
+        dma3.Init.Priority = DMA_PRIORITY_LOW;
+        if (HAL_DMA_Init(&dma3) != HAL_OK) {
+        }
+
+        __HAL_LINKDMA(spiHandle, hdmatx, dma3);
+
+        /* USER CODE BEGIN SPI1_MspInit 1 */
+
+        /* USER CODE END SPI1_MspInit 1 */
+    }
 }
