@@ -15,18 +15,12 @@ static uint8_t _xstart = ST7735_COLUMN_START, _ystart = ST7735_ROW_START;
 
 static void ST7735_WriteCommand(uint8_t cmd) {
     TFT_DC_COMMAND();
-    TFT_CS_LOW();
     HAL_SPI_Transmit(&spi, &cmd, sizeof(cmd), HAL_MAX_DELAY);
-    TFT_CS_HIGH();
 }
 
 static void ST7735_WriteData(uint8_t *buff, size_t buff_size) {
     TFT_DC_DATA();
-    TFT_CS_LOW();
-    while (!(SPI1->SR & 2)) {}
     HAL_SPI_Transmit(&spi, buff, buff_size, HAL_MAX_DELAY);
-    while (SPI1->SR & 0x80) {}
-    TFT_CS_HIGH();
 }
 
 static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
@@ -51,6 +45,9 @@ void ST7735_ExecuteCommandArray(const uint8_t *addr) {
     uint8_t numCommands, numArgs;
     uint16_t ms;
 
+    TFT_CS_LOW();
+
+
     numCommands = *addr++;
     while (numCommands--)
     {
@@ -74,11 +71,13 @@ void ST7735_ExecuteCommandArray(const uint8_t *addr) {
             HAL_Delay(ms);
         }
     }
+
+    TFT_CS_HIGH();
 }
 
 static void ST7735_Reset() {
     TFT_RESET_LOW();
-    HAL_Delay(20);
+    HAL_Delay(100);
     TFT_RESET_HIGH();
 }
 
@@ -105,8 +104,9 @@ static void ST7735_GPIO_Init() {
 
 void ST7735_Init() {
     ST7735_GPIO_Init();
-    TFT_CS_LOW();
     ST7735_Reset();
+    TFT_CS_LOW();
+
     ST7735_ExecuteCommandArray(Rcmd1);
     ST7735_ExecuteCommandArray(Rcmd2);
     ST7735_ExecuteCommandArray(Rcmd3);
@@ -138,7 +138,6 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
     ST7735_SetAddressWindow(x, y, x+w-1, y+h-1);
 
     uint8_t data[] = { color >> 8, color & 0xFF };
-    TFT_DC_DATA();
     for (y = h; y > 0; y--)
     {
         for (x = w; x > 0; x--)
@@ -204,6 +203,6 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint
         i = i + skipC;
         i = i - 2*originalWidth;
     }
-    TFT_CS_HIGH();  //Unselect
+    TFT_CS_HIGH();
 }
 

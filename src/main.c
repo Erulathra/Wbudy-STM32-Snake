@@ -56,7 +56,6 @@ int main(void) {
     spi.Init.CRCPolynomial = 7;
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
-        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     }
 
 
