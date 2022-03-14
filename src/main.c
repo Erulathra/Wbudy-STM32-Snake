@@ -9,10 +9,51 @@
 
 SPI_HandleTypeDef spi;
 
+void SystemClock_Config(void);
+void MX_DMA_Init(void);
+void GPIO_INIT();
+void SPI_INIT();
+
 int main(void) {
-
     HAL_Init();
+    SystemClock_Config();
 
+    MX_DMA_Init();
+    GPIO_INIT();
+
+    SPI_INIT();
+
+    if (HAL_SPI_Init(&spi) != HAL_OK) {
+    }
+
+
+
+    ST7735_Init();
+
+    ST7735_FillScreen(ST7735_BLACK);
+    while (1) {
+        ST7735_DrawImage(0, 127, 128, 128, pingiwin);
+        HAL_Delay(1000);
+        ST7735_FillScreen(ST7735_GREEN);
+    }
+}
+
+void SPI_INIT() {
+    spi.Instance = SPI1;
+    spi.Init.Mode = SPI_MODE_MASTER;
+    spi.Init.NSS = SPI_NSS_SOFT;
+    spi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+    spi.Init.Direction = SPI_DIRECTION_2LINES;
+    spi.Init.CLKPhase = SPI_PHASE_1EDGE;
+    spi.Init.CLKPolarity = SPI_POLARITY_LOW;
+    spi.Init.DataSize = SPI_DATASIZE_8BIT;
+    spi.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    spi.Init.TIMode = SPI_TIMODE_DISABLE;
+    spi.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+    spi.Init.CRCPolynomial = 7;
+}
+
+void GPIO_INIT() {
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -41,32 +82,6 @@ int main(void) {
 
     gpio.Pin = ST7735_DC; // CS
     HAL_GPIO_Init(ST7735_DC_PORT, &gpio);
-
-    spi.Instance = SPI1;
-    spi.Init.Mode = SPI_MODE_MASTER;
-    spi.Init.NSS = SPI_NSS_SOFT;
-    spi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-    spi.Init.Direction = SPI_DIRECTION_2LINES;
-    spi.Init.CLKPhase = SPI_PHASE_1EDGE;
-    spi.Init.CLKPolarity = SPI_POLARITY_LOW;
-    spi.Init.DataSize = SPI_DATASIZE_8BIT;
-    spi.Init.FirstBit = SPI_FIRSTBIT_MSB;
-    spi.Init.TIMode = SPI_TIMODE_DISABLE;
-    spi.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-    spi.Init.CRCPolynomial = 7;
-
-    if (HAL_SPI_Init(&spi) != HAL_OK) {
-    }
-
-
-    ST7735_Init();
-
-    ST7735_FillScreen(ST7735_BLACK);
-    while (1) {
-        ST7735_DrawImage(0, 127, 128, 128, pingiwin);
-        HAL_Delay(1000);
-        ST7735_FillScreen(ST7735_GREEN);
-    }
 }
 
 void SysTick_Handler(void) {
@@ -79,3 +94,51 @@ void HardFault_Handler(void) {
 }
 
 #pragma clang diagnostic pop
+
+void SystemClock_Config(void)
+{
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+    /** Initializes the RCC Oscillators according to the specified parameters
+    * in the RCC_OscInitTypeDef structure.
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+
+    }
+
+    /** Initializes the CPU, AHB and APB buses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    {
+
+    }
+}
+
+void MX_DMA_Init(void)
+{
+
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Channel3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+
+}
