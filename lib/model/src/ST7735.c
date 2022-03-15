@@ -149,30 +149,35 @@ void ST7735_FillScreen(uint16_t color) {
     ST7735_FillRectangle(0, 0, _width, _height, color);
 }
 
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *data) {
+void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, const uint16_t *data) {
     if ((x >= _width) || (y >= _height)) return;
-    if ((x + w - 1) >= _width) return;
-    if ((y + h - 1) >= _height) return;
+    if ((x + w * size - 1) >= _width) return;
+    if ((y +  w * size - 1) >= _height) return;
 
 
     TFT_CS_LOW();
-    ST7735_SetAddressWindow(x, y, x + w - 1, y + h - 1);
+    ST7735_SetAddressWindow(x, y, x + w * size - 1, y + h * size - 1);
 
-    uint16_t lineBuffer[w];
+    uint16_t lineBuffer[w * size];
     uint8_t *lineBuffer_ptr = (uint8_t *) lineBuffer;
     uint16_t * data_ptr = data;
 
-    for (int i = h; i > 0; i--) {
+    for (int i = h * size; i > 0; i--) {
         lineBuffer_ptr = (uint8_t *) lineBuffer;
 
         for (int j = w; j > 0; j -= 1) {
-            *lineBuffer_ptr = *data_ptr >> 8;
-            lineBuffer_ptr++;
-            *lineBuffer_ptr = *data_ptr & 0xFF;
-            lineBuffer_ptr++;
+            for (int k = 0; k < size; ++k) {
+                *lineBuffer_ptr = *data_ptr >> 8;
+                lineBuffer_ptr++;
+                *lineBuffer_ptr = *data_ptr & 0xFF;
+                lineBuffer_ptr++;
+            }
             data_ptr++;
         }
-        ST7735_WriteData((uint8_t *) lineBuffer, sizeof(lineBuffer));
+
+        for (int k = 0; k < size; ++k) {
+            ST7735_WriteData((uint8_t *) lineBuffer, sizeof(lineBuffer));
+        }
     }
     TFT_CS_HIGH();
 }

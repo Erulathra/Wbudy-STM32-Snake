@@ -33,14 +33,18 @@ int main(void) {
     ST7735_Init();
 
     ST7735_FillScreen(ST7735_BLACK);
+    int i = 0;
     while (1) {
-        ST7735_DrawImage(0, 0, 128, 128, swinek);
+        /*ST7735_DrawImage(0, 0, 128, 128, swinek);
         HAL_Delay(1000);
         ST7735_FillScreen(ST7735_BLUE);
         HAL_Delay(1000);
         ST7735_DrawImage(0, 0, 128, 128, pingiwin);
-        HAL_Delay(1000);
+        HAL_Delay(1000);*/
 
+        ST7735_DrawImage(0, 0, 64, 64, 2, epd_bitmap_allArray[i%7]);
+        HAL_Delay(100);
+        i++;
     }
 }
 
@@ -65,12 +69,6 @@ void GPIO_INIT() {
     __HAL_RCC_GPIOC_CLK_ENABLE();
 
     GPIO_InitTypeDef gpio;
-    gpio.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio.Pin = GPIO_PIN_13; // SCK, MOSI
-    gpio.Pull = GPIO_NOPULL;
-    gpio.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &gpio);
-
     __HAL_RCC_SPI1_CLK_ENABLE();
 
     gpio.Mode = GPIO_MODE_AF_PP;
