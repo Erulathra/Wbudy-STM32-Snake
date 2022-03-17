@@ -1,0 +1,6 @@
+1. Ekran - spi + dma + ekran: 3 func
+2. Zapis - EEPROM + RFID 2 func
+3. przyciski - GPIO 1 func
+4. jasność ekranu - DAC 1 func
+5. prędkość gry - ADC 1 func
+

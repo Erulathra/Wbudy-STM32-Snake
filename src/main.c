@@ -1,8 +1,6 @@
-#include <string.h>
 #include "stm32f1xx_hal.h"
-#include "st7735.h"
-#include "gpio.h"
 #include "images.h"
+#include "ST7735.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
