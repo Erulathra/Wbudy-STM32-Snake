@@ -11,9 +11,6 @@
 
 extern SPI_HandleTypeDef spi;
 
-static int16_t _height = ST7735_SCREEN_HEIGHT, _width = ST7735_SCREEN_WIDTH;
-static uint8_t _xstart = ST7735_COLUMN_START, _ystart = ST7735_ROW_START;
-
 static void ST7735_WriteCommand(uint8_t cmd) {
     TFT_DC_COMMAND();
     HAL_SPI_Transmit(&spi, &cmd, sizeof(cmd), HAL_MAX_DELAY);
@@ -28,13 +25,13 @@ static void ST7735_WriteData(uint8_t *buff, size_t buff_size) {
 static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
     // column address set
     ST7735_WriteCommand(ST7735_CASET);
-    uint8_t data[] = {0x00, x0 + _xstart, 0x00, x1 + _xstart};
+    uint8_t data[] = {0x00, x0 + ST7735_COLUMN_START, 0x00, x1 + ST7735_COLUMN_START};
     ST7735_WriteData(data, sizeof(data));
 
     // row address set
     ST7735_WriteCommand(ST7735_RASET);
-    data[1] = y0 + _ystart;
-    data[3] = y1 + _ystart;
+    data[1] = y0 + ST7735_ROW_START;
+    data[3] = y1 + ST7735_ROW_START;
     ST7735_WriteData(data, sizeof(data));
 
     // write to RAM
@@ -112,7 +109,7 @@ void ST7735_Init() {
 }
 
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
-    if ((x >= _width) || (y >= _height))
+    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT))
         return;
 
     TFT_CS_LOW();
@@ -126,9 +123,9 @@ void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 
 void ST7735_FillRectangle(uint16_t x, uint16_t i, uint16_t w, uint16_t h, uint16_t color) {
     // clipping
-    if ((x >= _width) || (i >= _height)) return;
-    if ((x + w - 1) >= _width) w = _width - x;
-    if ((i + h - 1) >= _height) h = _height - i;
+    if ((x >= ST7735_SCREEN_WIDTH) || (i >= ST7735_SCREEN_HEIGHT)) return;
+    if ((x + w - 1) >= ST7735_SCREEN_WIDTH) w = ST7735_SCREEN_WIDTH - x;
+    if ((i + h - 1) >= ST7735_SCREEN_HEIGHT) h = ST7735_SCREEN_HEIGHT - i;
 
     TFT_CS_LOW();
     ST7735_SetAddressWindow(x, i, x + w - 1, i + h - 1);
@@ -146,13 +143,13 @@ void ST7735_FillRectangle(uint16_t x, uint16_t i, uint16_t w, uint16_t h, uint16
 }
 
 void ST7735_FillScreen(uint16_t color) {
-    ST7735_FillRectangle(0, 0, _width, _height, color);
+    ST7735_FillRectangle(0, 0, ST7735_SCREEN_WIDTH, ST7735_SCREEN_HEIGHT, color);
 }
 
 void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, const uint16_t *data) {
-    if ((x >= _width) || (y >= _height)) return;
-    if ((x + w * size - 1) >= _width) return;
-    if ((y +  w * size - 1) >= _height) return;
+    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT)) return;
+    if ((x + w * size - 1) >= ST7735_SCREEN_WIDTH) return;
+    if ((y + w * size - 1) >= ST7735_SCREEN_HEIGHT) return;
 
 
     TFT_CS_LOW();
@@ -160,7 +157,7 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t si
 
     uint16_t lineBuffer[w * size];
     uint8_t *lineBuffer_ptr = (uint8_t *) lineBuffer;
-    uint16_t * data_ptr = data;
+    uint16_t *data_ptr = data;
 
     for (int i = h * size; i > 0; i--) {
         lineBuffer_ptr = (uint8_t *) lineBuffer;
