@@ -1,6 +1,7 @@
 #include "stm32f1xx_hal.h"
 #include "images.h"
 #include "ST7735.h"
+#include "ST7735_buffer.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -30,19 +31,20 @@ int main(void) {
 
     ST7735_Init();
 
-    ST7735_FillScreen(ST7735_BLACK);
-    int i = 0;
-    while (1) {
-        /*ST7735_DrawImage(0, 0, 128, 128, swinek);
-        HAL_Delay(1000);
-        ST7735_FillScreen(ST7735_BLUE);
-        HAL_Delay(1000);
-        ST7735_DrawImage(0, 0, 128, 128, pingiwin);
-        HAL_Delay(1000);*/
+    //FillBufferWithColor(ST7735_BLUE);
+    //ST7735_DrawBuffer(0, buffer);
 
-        ST7735_DrawImage(0, 0, 64, 64, 2, epd_bitmap_allArray[i%7]);
+
+    ST7735_DrawImage(0, 0, 64, 64, 2, epd_bitmap_cat2);
+
+    for (size_t i = 0;; i++) {
+        /*for (int j = 0; j < BUFFER_COUNT; ++j) {
+            bufferIndex = j;
+            DrawImageIntroBuffer(0, 0, 128, 128, epd_bitmap_allArray[1]);
+            //FillBufferWithColor(ST7735_GREEN);
+            ST7735_DrawBuffer(j, buffer);
+        }*/
         HAL_Delay(100);
-        i++;
     }
 }
 
@@ -93,8 +95,7 @@ void SysTick_Handler(void) {
 void HardFault_Handler(void) {
 }
 
-void DMA1_Channel3_IRQHandler(void)
-{
+void DMA1_Channel3_IRQHandler(void) {
     HAL_DMA_IRQHandler(&dma3);
 }
 
@@ -145,7 +146,6 @@ void MX_DMA_Init(void) {
 
 void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle) {
 
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
     if (spiHandle->Instance == SPI1) {
         /* USER CODE BEGIN SPI1_MspInit 0 */
 
