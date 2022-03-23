@@ -31,21 +31,30 @@ int main(void) {
 
     ST7735_Init();
 
-    //FillBufferWithColor(ST7735_BLUE);
-    //ST7735_DrawBuffer(0, buffer);
+    ST7735_FillScreen(ST7735_BLUE);
 
+    int16_t modifier = 1;
 
-    ST7735_DrawImage(0, 0, 64, 64, 2, epd_bitmap_cat2);
-
-    for (size_t i = 0;; i++) {
-        /*for (int j = 0; j < BUFFER_COUNT; ++j) {
+    for (int16_t i = -20;; i += modifier) {
+        for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
-            DrawImageIntroBuffer(0, 0, 128, 128, epd_bitmap_allArray[1]);
-            //FillBufferWithColor(ST7735_GREEN);
-            ST7735_DrawBuffer(j, buffer);
-        }*/
-        HAL_Delay(100);
+            FillBufferWithColor(ST7735_GREEN);
+            DrawImageIntroBuffer(i, i, 64, 64, epd_bitmap_allArray[(i+30) %7]);
+            ST7735_DrawBuffer(bufferIndex, buffer);
+        }
+
+
+        //HAL_Delay(30);
+        if (i > 120) {
+            modifier = -1;
+        }
+
+        if (i < -30) {
+            modifier = 1;
+        }
+        HAL_Delay(30);
     }
+
 }
 
 void SPI_INIT() {

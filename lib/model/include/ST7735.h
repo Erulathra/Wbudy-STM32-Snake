@@ -166,6 +166,6 @@ void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 void ST7735_DrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
 void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, uint8_t size);
 void ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor);
-void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[ST7735_SCREEN_WIDTH][BUFFER_HEIGHT]);
+void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[BUFFER_HEIGHT][ST7735_SCREEN_WIDTH]);
 
 #endif //WBUDY_STM32_SNAKE_ST7735_H

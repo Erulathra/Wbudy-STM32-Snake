@@ -26,13 +26,13 @@ static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
     // column address set
     ST7735_WriteCommand(ST7735_CASET);
     uint8_t data[] = {0x00, x0 + ST7735_COLUMN_START, 0x00, x1 + ST7735_COLUMN_START};
-    ST7735_WriteData(data, sizeof(data));
+    ST7735_WriteData(data, 4);
 
     // row address set
     ST7735_WriteCommand(ST7735_RASET);
     data[1] = y0 + ST7735_ROW_START;
     data[3] = y1 + ST7735_ROW_START;
-    ST7735_WriteData(data, sizeof(data));
+    ST7735_WriteData(data, 4);
 
     // write to RAM
     ST7735_WriteCommand(ST7735_RAMWR);
@@ -164,7 +164,8 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t si
 
         for (int j = 0; j < w; ++j) {
             for (int k = 0; k < size; ++k) {
-                *lineBuffer_ptr = ST7735_SWAP_BYTES(*data_ptr);
+                //*lineBuffer_ptr = ST7735_SWAP_BYTES(*data_ptr);
+                *lineBuffer_ptr = (*data_ptr);
                 lineBuffer_ptr++;
             }
             data_ptr++;
@@ -178,7 +179,6 @@ void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t si
 }
 
 void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
-    uint8_t hi = color >> 8, lo = color;
 
     if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT)) return;
     if ((x + w - 1) >= ST7735_SCREEN_WIDTH) w = ST7735_SCREEN_WIDTH - x;
@@ -188,7 +188,6 @@ void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
 }
 
 void ST7735_DrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-    uint8_t hi = color >> 8, lo = color;
     TFT_CS_LOW();
 
     // Rudimentary clipping
@@ -218,13 +217,15 @@ void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, uint8_t si
     }
 }
 
-void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[ST7735_SCREEN_WIDTH][BUFFER_HEIGHT]) {
+void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[BUFFER_HEIGHT][ST7735_SCREEN_WIDTH]) {
     if (bufferIteration > BUFFER_COUNT - 1) return;
 
     uint16_t startY = bufferIteration * 16;
 
     TFT_CS_LOW();
     ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 1, startY + BUFFER_HEIGHT - 1);
+    //ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 10, startY + BUFFER_HEIGHT - 1);
+
     ST7735_WriteData((uint8_t *) buffer, ST7735_SCREEN_WIDTH * BUFFER_HEIGHT * 2);
     TFT_CS_HIGH();
 }
