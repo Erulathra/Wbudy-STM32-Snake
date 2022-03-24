@@ -6,14 +6,18 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
+uint16_t deltaTime = 0;
+
 SPI_HandleTypeDef spi;
 DMA_HandleTypeDef dma3;
+TIM_HandleTypeDef tim2;
 
 void SystemClock_Config(void);
 void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
 void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle);
+void TIM2_INIT();
 
 int main(void) {
     HAL_Init();
@@ -33,28 +37,61 @@ int main(void) {
 
     ST7735_FillScreen(ST7735_BLUE);
 
-    int16_t modifier = 1;
 
-    for (int16_t i = -20;; i += modifier) {
+    SystemCoreClock = 72000000;
+    TIM2_INIT();
+
+    int16_t modifier = 1;
+    uint64_t frameCount = 0;
+    int16_t position = 0;
+    int speed = 2;
+    deltaTime = 0;
+    for (;;) {
+        position += modifier;
+
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_GREEN);
-            DrawImageIntroBuffer(i, i, 64, 64, epd_bitmap_allArray[(i+30) %7]);
+            DrawImageIntroBuffer(position/speed, position/speed, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
-
-        //HAL_Delay(30);
-        if (i > 120) {
+        if (position > 120 * speed) {
             modifier = -1;
         }
-
-        if (i < -30) {
+        else if (position < -30 * speed) {
             modifier = 1;
         }
-        HAL_Delay(30);
+
+        if (deltaTime < 16) {
+            HAL_Delay(16 - deltaTime);
+        }
+        deltaTime = 0;
+        frameCount++;
     }
 
+}
+
+void TIM2_INIT() {
+    __HAL_RCC_TIM2_CLK_ENABLE();
+
+    tim2.Instance = TIM2;
+    tim2.Init.Period = 9;
+    tim2.Init.Prescaler = 7199;
+    tim2.Init.ClockDivision = 0;
+    tim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    tim2.Init.RepetitionCounter = 0;
+    tim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    HAL_TIM_Base_Init(&tim2);
+    HAL_TIM_Base_Start_IT(&tim2);
+
+    //HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM2_IRQn);
+}
+
+void TIM2_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&tim2);
 }
 
 void SPI_INIT() {
@@ -95,6 +132,12 @@ void GPIO_INIT() {
 
     gpio.Pin = ST7735_DC; // CS
     HAL_GPIO_Init(ST7735_DC_PORT, &gpio);
+
+    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    gpio.Pin = GPIO_PIN_13;
+    HAL_GPIO_Init(GPIOC, &gpio);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+
 }
 
 void SysTick_Handler(void) {
@@ -102,10 +145,17 @@ void SysTick_Handler(void) {
 }
 
 void HardFault_Handler(void) {
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 }
 
 void DMA1_Channel3_IRQHandler(void) {
     HAL_DMA_IRQHandler(&dma3);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+    if (htim->Instance == TIM2) {
+        deltaTime++;
+    }
 }
 
 #pragma clang diagnostic pop
