@@ -1,8 +1,9 @@
+#include <stdlib.h>
+#include <string.h>
 #include "stm32f1xx_hal.h"
-#include "images.h"
-#include "sprites.h"
 #include "ST7735.h"
 #include "ST7735_buffer.h"
+#include "dvd.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -38,38 +39,36 @@ int main(void) {
 
     ST7735_FillScreen(ST7735_BLUE);
 
-
-    SystemCoreClock = 72000000;
     TIM2_INIT();
 
-    const char testText[] = "Litwo! Ojczyzno moja!\n Ty jestes jak zdrowie, Ile cie trzeba cenic, ten tylko sie dowie,"
-                          " Kto cie stracil. Dzis pięknosc twa w calej ozdobie Widze i opisuje, bo tęsknie po tobie";
+    InitializeDVD(20, 20, 2, 3, 2);
 
     int16_t modifier = 1;
     uint64_t frameCount = 0;
     int16_t position = -20;
-    int speed = 2;
     deltaTime = 0;
     for (;;) {
         position += modifier;
+        MoveDVD();
 
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
-            //DrawImageIntroBuffer(position/speed, position/speed, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
 
-            //DrawSpriteIntroBuffer(50, 50, 16, 16, snake_head);
-            //DrawCharIntroBuffer(position / speed, position / speed, 'S', ST7735_RED, 2);
-            DrawStringIntroBuffer(5,5,testText,ST7735_WHITE, 1);
-            //DrawPixelIntroBuffer(position/speed, position/speed, ST7735_MAGENTA);
+            DrawDVD();
+
+            char framerate[6];
+            itoa(deltaTime, framerate, 10);
+            strcat(framerate, "ms");
+            DrawStringIntroBuffer(5,5,framerate,ST7735_WHITE, 1);
 
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
-        if (position > 150 * speed) {
+        if (position > 130) {
             modifier = -1;
         }
-        else if (position < -30 * speed) {
+        else if (position < -30) {
             modifier = 1;
         }
 
