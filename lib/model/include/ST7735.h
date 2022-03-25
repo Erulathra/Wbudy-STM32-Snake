@@ -161,7 +161,7 @@ void setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 void ST7735_FillRectangle(uint16_t x, uint16_t i, uint16_t w, uint16_t h, uint16_t color);
 void ST7735_FillScreen(uint16_t color);
 void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, const uint16_t *data);
+void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, uint16_t *data);
 void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
 void ST7735_DrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
 void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, uint8_t size);

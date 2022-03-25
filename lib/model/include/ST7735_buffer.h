@@ -13,8 +13,12 @@
 size_t bufferIndex;
 uint16_t buffer[BUFFER_HEIGHT][ST7735_SCREEN_WIDTH];
 
-void DrawImageIntroBuffer(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *data);
+void DrawImageIntroBuffer(int16_t x, int8_t y, uint8_t w, uint8_t h, const uint16_t *data);
+void DrawSpriteIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint16_t *data);
 void FillBufferWithColor(uint16_t color);
 void FillBufferWithGradient();
+void DrawRectangleIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint16_t color);
+void DrawHorizontalLine(int16_t x, int16_t y, uint8_t w, uint16_t color);
+void DrawVerticalLine(int16_t x, int16_t y, uint8_t h, uint16_t color);
 
 #endif //WBUDY_STM32_SNAKE_ST7735_BUFFER_H

@@ -53,7 +53,13 @@ int main(void) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_GREEN);
             DrawImageIntroBuffer(position/speed, position/speed, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
+            DrawRectangleIntroBuffer((128 - position)/speed, position/speed, 18, 18, ST7735_RED);
+
+            DrawVerticalLine(10, 10, 50, ST7735_BLUE);
+            DrawHorizontalLine(10, 10, 50, ST7735_RED);
+
             ST7735_DrawBuffer(bufferIndex, buffer);
+
         }
 
         if (position > 120 * speed) {
