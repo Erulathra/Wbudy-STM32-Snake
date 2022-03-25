@@ -1,5 +1,6 @@
 #include "stm32f1xx_hal.h"
 #include "images.h"
+#include "sprites.h"
 #include "ST7735.h"
 #include "ST7735_buffer.h"
 
@@ -41,9 +42,12 @@ int main(void) {
     SystemCoreClock = 72000000;
     TIM2_INIT();
 
+    const char testText[] = "Litwo! Ojczyzno moja!\n Ty jestes jak zdrowie, Ile cie trzeba cenic, ten tylko sie dowie,"
+                          " Kto cie stracil. Dzis pięknosc twa w calej ozdobie Widze i opisuje, bo tęsknie po tobie";
+
     int16_t modifier = 1;
     uint64_t frameCount = 0;
-    int16_t position = 0;
+    int16_t position = -20;
     int speed = 2;
     deltaTime = 0;
     for (;;) {
@@ -51,18 +55,18 @@ int main(void) {
 
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
-            FillBufferWithColor(ST7735_GREEN);
-            DrawImageIntroBuffer(position/speed, position/speed, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
-            DrawRectangleIntroBuffer((128 - position)/speed, position/speed, 18, 18, ST7735_RED);
+            FillBufferWithColor(ST7735_BLACK);
+            //DrawImageIntroBuffer(position/speed, position/speed, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
 
-            DrawVerticalLine(10, 10, 50, ST7735_BLUE);
-            DrawHorizontalLine(10, 10, 50, ST7735_RED);
+            //DrawSpriteIntroBuffer(50, 50, 16, 16, snake_head);
+            //DrawCharIntroBuffer(position / speed, position / speed, 'S', ST7735_RED, 2);
+            DrawStringIntroBuffer(5,5,testText,ST7735_WHITE, 1);
+            //DrawPixelIntroBuffer(position/speed, position/speed, ST7735_MAGENTA);
 
             ST7735_DrawBuffer(bufferIndex, buffer);
-
         }
 
-        if (position > 120 * speed) {
+        if (position > 150 * speed) {
             modifier = -1;
         }
         else if (position < -30 * speed) {
