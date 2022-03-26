@@ -7,22 +7,31 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
+//#define clock128
+
 uint16_t deltaTime = 0;
 
 SPI_HandleTypeDef spi;
 DMA_HandleTypeDef dma3;
 TIM_HandleTypeDef tim2;
 
-void SystemClock_Config(void);
+void SystemClock_Config72(void);
+void SystemClock_Config128(void);
 void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
 void TIM2_INIT();
 
+void Error_Handler();
+
 int main(void) {
     HAL_Init();
-    SystemCoreClock = 72000000;
-    SystemClock_Config();
+
+#ifdef clock128
+    SystemClock_Config128();
+#else
+    SystemClock_Config72();
+#endif
 
     MX_DMA_Init();
     GPIO_INIT();
@@ -34,7 +43,10 @@ int main(void) {
     }
 
     ST7735_Init();
-
+    /*char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie,"
+                      " Ile cie trzeba cenic, ten tylko sie dowie,"
+                      " Kto cie stracil. Dzis pieknosc twa w calej ozdobie"
+                      " Widze i opisuje, bo tesknie po tobie";*/
     ST7735_FillScreen(ST7735_BLUE);
     InitializeDVD(20, 50, 4, 3, 1);
     int16_t modifier = 1;
@@ -55,6 +67,8 @@ int main(void) {
             static char framerate[10];
             itoa(lastFrameDuration, framerate, 10);
             DrawStringIntroBuffer(5, 5, framerate, ST7735_WHITE, 1);
+
+            //DrawStringIntroBuffer(12, 5, testText, ST7735_WHITE, 1);
 
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
@@ -80,8 +94,13 @@ void TIM2_INIT() {
     __HAL_RCC_TIM2_CLK_ENABLE();
 
     tim2.Instance = TIM2;
+#ifdef clock128
+    tim2.Init.Period = 99;
+    tim2.Init.Prescaler = 1279;
+#else
     tim2.Init.Period = 9;
     tim2.Init.Prescaler = 7199;
+#endif
     tim2.Init.ClockDivision = 0;
     tim2.Init.CounterMode = TIM_COUNTERMODE_UP;
     tim2.Init.RepetitionCounter = 0;
@@ -147,6 +166,10 @@ void SysTick_Handler(void) {
     HAL_IncTick();
 }
 
+void Error_Handler() {
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+}
+
 void HardFault_Handler(void) {
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 }
@@ -163,7 +186,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 #pragma clang diagnostic pop
 
-void SystemClock_Config(void) {
+
+void SystemClock_Config72(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -193,6 +217,43 @@ void SystemClock_Config(void) {
 
     }
 }
+
+void SystemClock_Config128(void) {
+
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+    /** Initializes the RCC Oscillators according to the specified parameters
+    * in the RCC_OscInitTypeDef structure.
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Initializes the CPU, AHB and APB buses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+}
+
+
 
 void MX_DMA_Init(void) {
 
@@ -232,3 +293,4 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle) {
         __HAL_LINKDMA(spiHandle, hdmatx, dma3);
     }
 }
+
