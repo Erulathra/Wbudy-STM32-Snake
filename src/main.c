@@ -4,24 +4,24 @@
 #include "ST7735_buffer.h"
 #include "dvd.h"
 #include "images.h"
+#include "OneWire.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
 #define clock128
 
-uint16_t deltaTime = 0;
-
 SPI_HandleTypeDef spi;
 DMA_HandleTypeDef dma3;
 TIM_HandleTypeDef tim2;
+TIM_HandleTypeDef tim3;
 
 void SystemClock_Config72(void);
 void SystemClock_Config128(void);
 void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
-void TIM2_INIT();
+void TIM_INIT();
 
 void Error_Handler();
 
@@ -36,8 +36,9 @@ int main(void) {
     MX_DMA_Init();
     GPIO_INIT();
     SPI_INIT();
-    TIM2_INIT();
+    TIM_INIT();
     HAL_SPI_MspInit(&spi);
+    HAL_SYSTICK_Config(SystemCoreClock / 1000);
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
     }
@@ -46,13 +47,24 @@ int main(void) {
     char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie, ile cie trzeba cenic ten tylko sie dowie co cie stracil.";
     ST7735_FillScreen(ST7735_BLUE);
     InitializeDVD(20, 50, 4, 3, 1);
-    int16_t modifier = 1;
+
     uint64_t frameCount = 0;
-    int16_t position = -20;
     uint8_t lastFrameDuration = 0;
-    deltaTime = 0;
+
+    /*WireInit();
+    WireReset();
+    WireWrite(0xcc);
+    WireWrite(0xbe);*/
+
+    /*int i;
+    uint8_t scratchpad[9];
+    for (i = 0; i < 9; i++)
+        scratchpad[i] = WireRead();
+
+    int16_t temp = (int16_t) (scratchpad[0] << 8 | scratchpad[1]);*/
+
+    HAL_TIM_Base_Start(&tim2);
     for (;;) {
-        position += modifier;
         MoveDVD();
 
         for (int j = 0; j < BUFFER_COUNT; ++j) {
@@ -61,38 +73,34 @@ int main(void) {
             DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
             DrawDVD();
 
-            static char framerate[10];
-            itoa(lastFrameDuration, framerate, 10);
-            DrawStringIntroBuffer(5, 5, framerate, ST7735_WHITE, Font_7x10);
+            static char stringBuffer[10];
+            itoa(lastFrameDuration, stringBuffer, 10);
+            DrawStringIntroBuffer(5, 5, stringBuffer, ST7735_WHITE, Font_7x10);
+            //itoa(temp, stringBuffer, 10);
+            DrawStringIntroBuffer(20, 5, stringBuffer, ST7735_WHITE, Font_7x10);
 
             DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
-        if (position > 130) {
-            modifier = -1;
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
+        if (lastFrameDuration < 16) {
+            HAL_Delay(16 - lastFrameDuration);
         }
-        else if (position < -30) {
-            modifier = 1;
-        }
-
-        lastFrameDuration = deltaTime;
-        if (deltaTime < 16) {
-            HAL_Delay(16 - deltaTime);
-        }
-        deltaTime = 0;
+        __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
     }
 
 }
 
-void TIM2_INIT() {
+void TIM_INIT() {
     __HAL_RCC_TIM2_CLK_ENABLE();
+    __HAL_RCC_TIM3_CLK_ENABLE();
 
     tim2.Instance = TIM2;
 #ifdef clock128
-    tim2.Init.Period = 99;
-    tim2.Init.Prescaler = 1279;
+    tim2.Init.Period = 9999;
+    tim2.Init.Prescaler = 12799;
 #else
     tim2.Init.Period = 9;
     tim2.Init.Prescaler = 7199;
@@ -102,10 +110,15 @@ void TIM2_INIT() {
     tim2.Init.RepetitionCounter = 0;
     tim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_Base_Init(&tim2);
-    HAL_TIM_Base_Start_IT(&tim2);
 
-    //HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM2_IRQn);
+    tim3.Instance = TIM3;
+    tim3.Init.Period = 999;
+    tim3.Init.Prescaler = 127;
+    tim3.Init.ClockDivision = 0;
+    tim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    tim3.Init.RepetitionCounter = 0;
+    tim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    HAL_TIM_Base_Init(&tim3);
 }
 
 void TIM2_IRQHandler(void) {
@@ -172,12 +185,6 @@ void HardFault_Handler(void) {
 
 void DMA1_Channel3_IRQHandler(void) {
     HAL_DMA_IRQHandler(&dma3);
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (htim->Instance == TIM2) {
-        deltaTime++;
-    }
 }
 
 #pragma clang diagnostic pop
