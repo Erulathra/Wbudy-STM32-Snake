@@ -7,7 +7,6 @@
 #define BUFFER_COUNT 8
 #define ST7735_SCREEN_WIDTH 128
 #define ST7735_SCREEN_HEIGHT 128
-#define ST7735_SWAP_BYTES(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
 
 #define TRANSPARENCY_COLOR 0xf81f
 

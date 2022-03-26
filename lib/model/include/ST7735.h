@@ -18,7 +18,8 @@
 
 //RGB to RGB565
 #define ST7735_RGB565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
-#define ST7735_SWAP_BYTES(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
+//#define ST7735_SWAP_BYTES(x) (((x & 0xff) << 8) | ((x & 0xff00) >> 8))
+#define ST7735_SWAP_BYTES(x) (__builtin_bswap16(x))
 // Some register settings
 #define ST7735_MADCTL_BGR 0x08
 #define ST7735_MADCTL_MH 0x04

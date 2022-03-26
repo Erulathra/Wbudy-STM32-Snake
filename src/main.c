@@ -36,8 +36,7 @@ int main(void) {
     ST7735_Init();
 
     ST7735_FillScreen(ST7735_BLUE);
-    InitializeDVD(20, 50, 1, 3, 1);
-
+    InitializeDVD(20, 50, 4, 3, 1);
     int16_t modifier = 1;
     uint64_t frameCount = 0;
     int16_t position = -20;
@@ -68,8 +67,8 @@ int main(void) {
         }
 
         lastFrameDuration = deltaTime;
-        if (deltaTime < 25) {
-            HAL_Delay(25 - deltaTime);
+        if (deltaTime < 16) {
+            HAL_Delay(16 - deltaTime);
         }
         deltaTime = 0;
         frameCount++;
@@ -226,14 +225,10 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle) {
         dma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
         dma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
         dma3.Init.Mode = DMA_NORMAL;
-        dma3.Init.Priority = DMA_PRIORITY_LOW;
+        dma3.Init.Priority = DMA_PRIORITY_HIGH;
         if (HAL_DMA_Init(&dma3) != HAL_OK) {
         }
 
         __HAL_LINKDMA(spiHandle, hdmatx, dma3);
-
-        /* USER CODE BEGIN SPI1_MspInit 1 */
-
-        /* USER CODE END SPI1_MspInit 1 */
     }
 }
