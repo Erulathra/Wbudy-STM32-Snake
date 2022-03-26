@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include "ST7735_buffer.h"
 
 void CalculateVerticalWindow(uint16_t bufferY, int16_t *y, uint8_t *h, uint8_t *offsetY);
@@ -126,28 +127,29 @@ void DrawVerticalLineIntroBuffer(int16_t x, int16_t y, uint8_t h, uint16_t color
     DrawRectangleIntroBuffer(x, y, 1, h, color);
 }
 
-void DrawCharIntroBuffer(int16_t x, int16_t y, char character, int16_t textColor, uint8_t size) {
-    uint8_t line;
-    int16_t i, j;
+void DrawCharIntroBuffer(int16_t x, int16_t y, char ch, uint16_t textColor, FontDef font) {
+    uint8_t bufferY = bufferIndex * BUFFER_HEIGHT;
 
-    for (i = 0; i < 6; i++) {
-        if (i == 5)
-            line = 0x0;
-        else
-            line = Font[(character * 5) + i];
+    if (x > ST7735_SCREEN_WIDTH - 1 || y > (bufferY + BUFFER_HEIGHT - 1)) return;
+    if ((x + font.width) <= 0 || (y + font.height) <= bufferY) return;
 
-        for (j = 0; j < 8; j++) {
-            if (line & 0x1) {
-                if (size == 1)
-                    DrawPixelIntroBuffer(x + i, y + j, textColor);
-                else {
-                    DrawRectangleIntroBuffer(x + (i * size), y + (j * size), size, size, textColor);
-                }
+    uint16_t characterBuffer[16*26];
+
+    for (uint16_t i = 0; i < font.height; i++) {
+        uint16_t line = font.data[(ch - 32) * font.height + i];
+        for (uint16_t j = 0; j < font.width; j++) {
+            if ((line << j) & 0x8000) {
+                characterBuffer[j+i*font.width] = textColor;
             }
-            line >>= 1;
+            else {
+                characterBuffer[j+i*font.width] = TRANSPARENCY_PINK;
+            }
         }
     }
+
+    DrawSpriteIntroBuffer(x, y, font.width, font.height, (const uint16_t *) characterBuffer);
 }
+
 
 void DrawPixelIntroBuffer(int16_t x, int16_t y, uint16_t color) {
     uint8_t bufferY = bufferIndex * BUFFER_HEIGHT;
@@ -160,26 +162,26 @@ void DrawPixelIntroBuffer(int16_t x, int16_t y, uint16_t color) {
     buffer[y][x] = ST7735_SWAP_BYTES(color);
 }
 
-void GoToNextLine(int16_t x, uint8_t size, char **pt, int16_t *characterX, int16_t *characterY);
+void GoToNextLine(int16_t x, FontDef font, char **pt, int16_t *characterX, int16_t *characterY);
 
-void DrawStringIntroBuffer(int16_t x, int16_t y, char *pt, int16_t textColor, uint8_t size) {
+void DrawStringIntroBuffer(int16_t x, int16_t y, char *pt, uint16_t textColor, FontDef font) {
 
     int16_t characterX = x;
     int16_t characterY = y;
 
     while (*pt) {
-        DrawCharIntroBuffer(characterX, characterY, *pt, textColor, size);
+        DrawCharIntroBuffer(characterX, characterY, *pt, textColor, font);
 
         pt++;
-        characterX += (6 * size);
+        characterX += (int8_t) font.width;
 
         if (*pt == '\n') {
             pt++;
-            GoToNextLine(x, size, &pt, &characterX, &characterY);
+            GoToNextLine(x, font, &pt, &characterX, &characterY);
         }
 
-        if (characterX + 6 >= ST7735_SCREEN_WIDTH) {
-            GoToNextLine(x, size, &pt, &characterX, &characterY);
+        if (characterX + font.width >= ST7735_SCREEN_WIDTH) {
+            GoToNextLine(x, font, &pt, &characterX, &characterY);
         }
 
         if (characterY >= ST7735_SCREEN_HEIGHT) {
@@ -190,9 +192,9 @@ void DrawStringIntroBuffer(int16_t x, int16_t y, char *pt, int16_t textColor, ui
 }
 
 //Transfer text to next line - It resets x and add font size to y, if first character in line is space, it will skip that character.
-void GoToNextLine(int16_t x, uint8_t size, char **pt, int16_t *characterX, int16_t *characterY) {
+void GoToNextLine(int16_t x, FontDef font, char **pt, int16_t *characterX, int16_t *characterY) {
     (*characterX) = x;
-    (*characterY) += (10 * size);
+    (*characterY) += font.height;
     if (*(*pt) == ' ') {
         (*pt)++;
     }

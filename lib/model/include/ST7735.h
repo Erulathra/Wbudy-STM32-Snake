@@ -5,8 +5,9 @@
 #include "ST7735_buffer.h"
 #include "font.h"
 
-#define BUFFER_HEIGHT 16
-#define BUFFER_COUNT 8
+#define TRANSPARENCY_PINK 0xf81f
+#define BUFFER_HEIGHT 32
+#define BUFFER_COUNT 4
 
 #define ST7735_RESET GPIO_PIN_13
 #define ST7735_RESET_PORT GPIOB

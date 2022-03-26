@@ -2,9 +2,10 @@
 #define WBUDY_STM32_SNAKE_ST7735_BUFFER_H
 
 #include "ST7735.h"
+#include "font.h"
 
-#define BUFFER_HEIGHT 16
-#define BUFFER_COUNT 8
+#define BUFFER_HEIGHT 32
+#define BUFFER_COUNT 4
 #define ST7735_SCREEN_WIDTH 128
 #define ST7735_SCREEN_HEIGHT 128
 
@@ -21,7 +22,7 @@ void DrawPixelIntroBuffer(int16_t x, int16_t y, uint16_t color);
 void DrawHorizontalLineIntroBuffer(int16_t x, int16_t y, uint8_t w, uint16_t color);
 void DrawVerticalLineIntroBuffer(int16_t x, int16_t y, uint8_t h, uint16_t color);
 
-void DrawCharIntroBuffer(int16_t x, int16_t y, char character, int16_t textColor, uint8_t size);
-void DrawStringIntroBuffer(int16_t x, int16_t y, char *pt, int16_t textColor, uint8_t size);
+void DrawCharIntroBuffer(int16_t x, int16_t y, char ch, uint16_t textColor, FontDef font);
+void DrawStringIntroBuffer(int16_t x, int16_t y, char *pt, uint16_t textColor, FontDef font);
 
 #endif //WBUDY_STM32_SNAKE_ST7735_BUFFER_H

@@ -3,11 +3,12 @@
 #include "ST7735.h"
 #include "ST7735_buffer.h"
 #include "dvd.h"
+#include "images.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
 
-//#define clock128
+#define clock128
 
 uint16_t deltaTime = 0;
 
@@ -25,13 +26,12 @@ void TIM2_INIT();
 void Error_Handler();
 
 int main(void) {
-    HAL_Init();
-
 #ifdef clock128
     SystemClock_Config128();
 #else
     SystemClock_Config72();
 #endif
+    HAL_Init();
 
     MX_DMA_Init();
     GPIO_INIT();
@@ -43,10 +43,7 @@ int main(void) {
     }
 
     ST7735_Init();
-    /*char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie,"
-                      " Ile cie trzeba cenic, ten tylko sie dowie,"
-                      " Kto cie stracil. Dzis pieknosc twa w calej ozdobie"
-                      " Widze i opisuje, bo tesknie po tobie";*/
+    char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie, ile cie trzeba cenic ten tylko sie dowie co cie stracil.";
     ST7735_FillScreen(ST7735_BLUE);
     InitializeDVD(20, 50, 4, 3, 1);
     int16_t modifier = 1;
@@ -61,15 +58,14 @@ int main(void) {
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
-
+            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
             DrawDVD();
 
             static char framerate[10];
             itoa(lastFrameDuration, framerate, 10);
-            DrawStringIntroBuffer(5, 5, framerate, ST7735_WHITE, 1);
+            DrawStringIntroBuffer(5, 5, framerate, ST7735_WHITE, Font_7x10);
 
-            //DrawStringIntroBuffer(12, 5, testText, ST7735_WHITE, 1);
-
+            DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
