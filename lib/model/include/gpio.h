@@ -19,5 +19,4 @@
 #define GPIO_MODE_50MHZ 0b0011
 
 
-
 #endif //WBUDY_STM32_SNAKE_GPIO_H

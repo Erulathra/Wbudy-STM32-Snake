@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 #include "stm32f1xx_hal.h"
 #include "ST7735.h"
 #include "ST7735_buffer.h"
@@ -18,34 +17,31 @@ void SystemClock_Config(void);
 void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
-void HAL_SPI_MspInit(SPI_HandleTypeDef *spiHandle);
 void TIM2_INIT();
 
 int main(void) {
     HAL_Init();
+    SystemCoreClock = 72000000;
     SystemClock_Config();
 
     MX_DMA_Init();
     GPIO_INIT();
-
     SPI_INIT();
+    TIM2_INIT();
     HAL_SPI_MspInit(&spi);
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
     }
 
-
     ST7735_Init();
 
     ST7735_FillScreen(ST7735_BLUE);
-
-    TIM2_INIT();
-
-    InitializeDVD(20, 20, 2, 3, 2);
+    InitializeDVD(20, 50, 1, 3, 1);
 
     int16_t modifier = 1;
     uint64_t frameCount = 0;
     int16_t position = -20;
+    uint8_t lastFrameDuration = 0;
     deltaTime = 0;
     for (;;) {
         position += modifier;
@@ -57,10 +53,9 @@ int main(void) {
 
             DrawDVD();
 
-            char framerate[6];
-            itoa(deltaTime, framerate, 10);
-            strcat(framerate, "ms");
-            DrawStringIntroBuffer(5,5,framerate,ST7735_WHITE, 1);
+            static char framerate[10];
+            itoa(lastFrameDuration, framerate, 10);
+            DrawStringIntroBuffer(5, 5, framerate, ST7735_WHITE, 1);
 
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
@@ -72,8 +67,9 @@ int main(void) {
             modifier = 1;
         }
 
-        if (deltaTime < 16) {
-            HAL_Delay(16 - deltaTime);
+        lastFrameDuration = deltaTime;
+        if (deltaTime < 25) {
+            HAL_Delay(25 - deltaTime);
         }
         deltaTime = 0;
         frameCount++;
@@ -98,8 +94,7 @@ void TIM2_INIT() {
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
 }
 
-void TIM2_IRQHandler(void)
-{
+void TIM2_IRQHandler(void) {
     HAL_TIM_IRQHandler(&tim2);
 }
 
@@ -107,7 +102,7 @@ void SPI_INIT() {
     spi.Instance = SPI1;
     spi.Init.Mode = SPI_MODE_MASTER;
     spi.Init.NSS = SPI_NSS_SOFT;
-    spi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+    spi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
     spi.Init.Direction = SPI_DIRECTION_2LINES;
     spi.Init.CLKPhase = SPI_PHASE_1EDGE;
     spi.Init.CLKPolarity = SPI_POLARITY_LOW;
@@ -161,7 +156,7 @@ void DMA1_Channel3_IRQHandler(void) {
     HAL_DMA_IRQHandler(&dma3);
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM2) {
         deltaTime++;
     }

@@ -1,6 +1,6 @@
 #include "dvd.h"
 
-const uint16_t * LOGO = sprite_logo;
+const uint16_t *LOGO = sprite_logo;
 uint16_t RandomColor();
 
 static uint8_t bounceCount;
@@ -16,7 +16,7 @@ void InitializeDVD(int16_t startX, int16_t startY, int8_t speedX, int8_t speedY,
 
 void MoveDVD() {
     frameCount++;
-    if(frameCount < dvd.speedFactor)
+    if (frameCount < dvd.speedFactor)
         return;
 
     if ((dvd.x + LOGO_SIZE) >= ST7735_SCREEN_WIDTH) {
@@ -36,7 +36,7 @@ void MoveDVD() {
 
 void DrawDVD() {
     DrawRectangleIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, RandomColor());
-    DrawSpriteIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, LOGO );
+    DrawSpriteIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, LOGO);
 }
 
 

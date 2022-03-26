@@ -6,7 +6,7 @@
 #include "ST7735_buffer.h"
 
 #define LOGO_SIZE 32
-const extern uint16_t * LOGO;
+const extern uint16_t *LOGO;
 
 struct DVD {
     uint8_t x;
