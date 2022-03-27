@@ -130,19 +130,19 @@ void DrawVerticalLineIntroBuffer(int16_t x, int16_t y, uint8_t h, uint16_t color
 void DrawCharIntroBuffer(int16_t x, int16_t y, char ch, uint16_t textColor, FontDef font) {
     uint8_t bufferY = bufferIndex * BUFFER_HEIGHT;
 
-    if (x > ST7735_SCREEN_WIDTH - 1 || y > (bufferY + BUFFER_HEIGHT - 1)) return;
+    if (x > ST7735_SCREEN_WIDTH || y > (bufferY + BUFFER_HEIGHT)) return;
     if ((x + font.width) <= 0 || (y + font.height) <= bufferY) return;
 
-    uint16_t characterBuffer[16*26];
+    uint16_t characterBuffer[16 * 26];
 
     for (uint16_t i = 0; i < font.height; i++) {
         uint16_t line = font.data[(ch - 32) * font.height + i];
         for (uint16_t j = 0; j < font.width; j++) {
             if ((line << j) & 0x8000) {
-                characterBuffer[j+i*font.width] = textColor;
+                characterBuffer[j + i * font.width] = textColor;
             }
             else {
-                characterBuffer[j+i*font.width] = TRANSPARENCY_PINK;
+                characterBuffer[j + i * font.width] = TRANSPARENCY_PINK;
             }
         }
     }

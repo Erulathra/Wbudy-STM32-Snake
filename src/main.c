@@ -74,25 +74,25 @@ int main(void) {
         MoveDVD();
 
         static char stringBuffer[10];
-        static char stringBuffer2[10];
         itoa(lastFrameDuration, stringBuffer, 10);
-        itoa(tempByte1, stringBuffer2, 10);
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
+
             FillBufferWithColor(ST7735_BLACK);
             DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
             DrawDVD();
 
             DrawStringIntroBuffer(5, 5, stringBuffer, ST7735_WHITE, Font_7x10);
-            DrawStringIntroBuffer(20, 5, stringBuffer2, ST7735_WHITE, Font_7x10);
 
-            //DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
+            DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
+
+            DrawSpriteIntroBuffer(100, 100, 16, 16, sprite_snake_head);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
-        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2);
-        if (lastFrameDuration < 25) {
-            HAL_Delay(25 - lastFrameDuration);
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
+        if (lastFrameDuration < 16) {
+            HAL_Delay(16 - lastFrameDuration);
         }
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
@@ -107,10 +107,10 @@ void TIM_INIT() {
     tim2.Instance = TIM2;
 #ifdef clock128
     tim2.Init.Period = 65535;
-    tim2.Init.Prescaler = 64000-1;
+    tim2.Init.Prescaler = 6400-1;
 #else
-    tim2.Init.Period = 9;
-    tim2.Init.Prescaler = 7199;
+    tim2.Init.Period = 65535;
+    tim2.Init.Prescaler = 7200-1;
 #endif
     tim2.Init.ClockDivision = 0;
     tim2.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -119,8 +119,14 @@ void TIM_INIT() {
     HAL_TIM_Base_Init(&tim2);
 
     tim3.Instance = TIM3;
-    tim3.Init.Period = 65535;
-    tim3.Init.Prescaler = 64-1;
+#ifdef clock128
+    tim2.Init.Period = 65535;
+    tim2.Init.Prescaler = 64-1;
+#else
+    tim2.Init.Period = 65535;
+    tim2.Init.Prescaler = 72-1;
+#endif
+
     tim3.Init.ClockDivision = 0;
     tim3.Init.CounterMode = TIM_COUNTERMODE_UP;
     tim3.Init.RepetitionCounter = 0;

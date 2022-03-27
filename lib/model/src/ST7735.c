@@ -203,7 +203,7 @@ void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[BUFFER_HEIGHT][
     uint16_t startY = bufferIteration * BUFFER_HEIGHT;
 
     TFT_CS_LOW();
-    ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 1, startY + BUFFER_HEIGHT - 1);
+    ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 1, startY + BUFFER_HEIGHT );
     //ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 10, startY + BUFFER_HEIGHT - 1);
 
     ST7735_WriteData((uint8_t *) buffer, ST7735_SCREEN_WIDTH * BUFFER_HEIGHT * 2);
