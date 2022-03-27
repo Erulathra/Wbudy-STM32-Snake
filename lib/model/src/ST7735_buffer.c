@@ -62,10 +62,11 @@ void CalculateVerticalWindow(uint16_t bufferY, int16_t *y, uint8_t *h, uint8_t *
 }
 
 
-void DrawSpriteIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint16_t *data) {
+void DrawSpriteIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, const uint16_t *data, int8_t flipHorizontally, int8_t flipVertically) {
     uint8_t bufferY = bufferIndex * BUFFER_HEIGHT;
 
     int8_t originalWidth = w;
+    int8_t originalHeight = h;
 
     uint8_t offsetX = 0;
     uint8_t offsetY = 0;
@@ -76,10 +77,21 @@ void DrawSpriteIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, const uin
     CalculateVerticalWindow(bufferY, &y, &h, &offsetY);
     CalculateHorizontalWindow(&x, &w, &offsetX);
 
+    uint8_t heightFlipFactor = 0;
+    uint8_t widthFlipFactor = 0;
+
+    if (flipVertically == FLIPPED) {
+        heightFlipFactor = 1;
+    }
+    if (flipHorizontally == FLIPPED) {
+        widthFlipFactor = 1;
+    }
 
     for (uint16_t i = 0; i < h; ++i) {
         for (uint16_t j = 0; j < w; ++j) {
-            uint16_t color = data[(j + offsetX) + ((i + offsetY) * originalWidth)];
+            uint8_t horizontalDataIndex = widthFlipFactor * (originalWidth - 1) + (j + offsetX) * flipVertically;
+            uint8_t verticalDataIndex = heightFlipFactor * (originalHeight - 1) + (i + offsetY) * flipVertically;
+            uint16_t color = data[horizontalDataIndex + (verticalDataIndex * originalWidth)];
 
             if (color == TRANSPARENCY_COLOR) {
                 continue;
@@ -147,7 +159,7 @@ void DrawCharIntroBuffer(int16_t x, int16_t y, char ch, uint16_t textColor, Font
         }
     }
 
-    DrawSpriteIntroBuffer(x, y, font.width, font.height, (const uint16_t *) characterBuffer);
+    DrawSpriteIntroBuffer(x, y, font.width, font.height, (const uint16_t *) characterBuffer, NORMAL, NORMAL);
 }
 
 

@@ -86,7 +86,7 @@ int main(void) {
 
             DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
 
-            DrawSpriteIntroBuffer(100, 100, 16, 16, sprite_snake_head);
+            DrawSpriteIntroBuffer(100, 100, 16, 16, sprite_snake_head, FLIPPED, FLIPPED);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 

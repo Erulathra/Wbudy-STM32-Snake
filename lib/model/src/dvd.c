@@ -36,7 +36,7 @@ void MoveDVD() {
 
 void DrawDVD() {
     DrawRectangleIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, RandomColor());
-    DrawSpriteIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, LOGO);
+    DrawSpriteIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, LOGO, NORMAL, NORMAL);
 }
 
 
