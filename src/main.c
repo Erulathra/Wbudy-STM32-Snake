@@ -4,7 +4,7 @@
 #include "ST7735_buffer.h"
 #include "dvd.h"
 #include "images.h"
-#include "OneWire.h"
+#include "DS18B20.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -38,7 +38,7 @@ int main(void) {
     SPI_INIT();
     TIM_INIT();
     HAL_SPI_MspInit(&spi);
-    HAL_SYSTICK_Config(SystemCoreClock / 1000);
+    //HAL_SYSTICK_Config(SystemCoreClock / 1000);
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
     }
@@ -51,41 +51,48 @@ int main(void) {
     uint64_t frameCount = 0;
     uint8_t lastFrameDuration = 0;
 
-    /*WireInit();
-    WireReset();
-    WireWrite(0xcc);
-    WireWrite(0xbe);*/
+    /*DS18B20_Init();
 
-    /*int i;
-    uint8_t scratchpad[9];
-    for (i = 0; i < 9; i++)
-        scratchpad[i] = WireRead();
+    int presence = DS18B20_Start ();
+    HAL_Delay (1);
+    DS18B20_Write (0xCC);  // skip ROM
+    DS18B20_Write (0x44);  // convert t
+    HAL_Delay (100);
 
-    int16_t temp = (int16_t) (scratchpad[0] << 8 | scratchpad[1]);*/
+    presence = DS18B20_Start ();
+    HAL_Delay(1);
+    DS18B20_Write (0xCC);  // skip ROM
+    DS18B20_Write (0xBE);  // Read Scratch-pad
+
+    uint8_t tempByte1 = DS18B20_Read();
+    uint8_t tempByte2 = DS18B20_Read();*/
 
     HAL_TIM_Base_Start(&tim2);
+    __HAL_TIM_SET_COUNTER(&tim2, 0);
+
     for (;;) {
         MoveDVD();
 
+        static char stringBuffer[10];
+        static char stringBuffer2[10];
+        itoa(lastFrameDuration, stringBuffer, 10);
+        itoa(tempByte1, stringBuffer2, 10);
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
             DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
             DrawDVD();
 
-            static char stringBuffer[10];
-            itoa(lastFrameDuration, stringBuffer, 10);
             DrawStringIntroBuffer(5, 5, stringBuffer, ST7735_WHITE, Font_7x10);
-            //itoa(temp, stringBuffer, 10);
-            DrawStringIntroBuffer(20, 5, stringBuffer, ST7735_WHITE, Font_7x10);
+            DrawStringIntroBuffer(20, 5, stringBuffer2, ST7735_WHITE, Font_7x10);
 
-            DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
+            //DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
             ST7735_DrawBuffer(bufferIndex, buffer);
         }
 
-        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
-        if (lastFrameDuration < 16) {
-            HAL_Delay(16 - lastFrameDuration);
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2);
+        if (lastFrameDuration < 25) {
+            HAL_Delay(25 - lastFrameDuration);
         }
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
@@ -99,8 +106,8 @@ void TIM_INIT() {
 
     tim2.Instance = TIM2;
 #ifdef clock128
-    tim2.Init.Period = 9999;
-    tim2.Init.Prescaler = 12799;
+    tim2.Init.Period = 65535;
+    tim2.Init.Prescaler = 64000-1;
 #else
     tim2.Init.Period = 9;
     tim2.Init.Prescaler = 7199;
@@ -112,13 +119,14 @@ void TIM_INIT() {
     HAL_TIM_Base_Init(&tim2);
 
     tim3.Instance = TIM3;
-    tim3.Init.Period = 999;
-    tim3.Init.Prescaler = 127;
+    tim3.Init.Period = 65535;
+    tim3.Init.Prescaler = 64-1;
     tim3.Init.ClockDivision = 0;
     tim3.Init.CounterMode = TIM_COUNTERMODE_UP;
     tim3.Init.RepetitionCounter = 0;
     tim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_Base_Init(&tim3);
+    HAL_TIM_Base_Start(&tim3);
 }
 
 void TIM2_IRQHandler(void) {
