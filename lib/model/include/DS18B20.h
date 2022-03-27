@@ -10,7 +10,8 @@
 #define ONE_WIRE_DATA_READ HAL_GPIO_ReadPin(ONE_WIRE_DATA_PORT, ONE_WIRE_DATA_PIN)
 
 
-uint8_t DS18B20_Start (void);
+double ReadTemp();
+int8_t DS18B20_Start (void);
 void DS18B20_Write (uint8_t data);
 uint8_t DS18B20_Read (void);
 void DS18B20_Init(void);

@@ -1,10 +1,13 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "stm32f1xx_hal.h"
 #include "ST7735.h"
 #include "ST7735_buffer.h"
 #include "dvd.h"
 #include "images.h"
 #include "DS18B20.h"
+#include "ftoa.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -22,6 +25,8 @@ void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
 void TIM_INIT();
+
+void GameLoop();
 
 void Error_Handler();
 
@@ -44,31 +49,26 @@ int main(void) {
     }
 
     ST7735_Init();
-    char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie, ile cie trzeba cenic ten tylko sie dowie co cie stracil.";
     ST7735_FillScreen(ST7735_BLUE);
+
+
+    DS18B20_Init();
+    char tempText[10];
+    double testTemp = ReadTemp() * 0.0625;
+    ftoa(testTemp, tempText, 4);
+    HAL_TIM_Base_Start(&tim2);
+    __HAL_TIM_SET_COUNTER(&tim2, 0);
+
+    GameLoop();
+
+}
+
+void GameLoop() {
+    char testText[] = "Litwo! Ojczyzno moja! Ty jestes jak zdrowie, ile cie trzeba cenic ten tylko sie dowie co cie stracil.";
     InitializeDVD(20, 50, 4, 3, 1);
 
     uint64_t frameCount = 0;
     uint8_t lastFrameDuration = 0;
-
-    /*DS18B20_Init();
-
-    int presence = DS18B20_Start ();
-    HAL_Delay (1);
-    DS18B20_Write (0xCC);  // skip ROM
-    DS18B20_Write (0x44);  // convert t
-    HAL_Delay (100);
-
-    presence = DS18B20_Start ();
-    HAL_Delay(1);
-    DS18B20_Write (0xCC);  // skip ROM
-    DS18B20_Write (0xBE);  // Read Scratch-pad
-
-    uint8_t tempByte1 = DS18B20_Read();
-    uint8_t tempByte2 = DS18B20_Read();*/
-
-    HAL_TIM_Base_Start(&tim2);
-    __HAL_TIM_SET_COUNTER(&tim2, 0);
 
     for (;;) {
         MoveDVD();
@@ -77,14 +77,19 @@ int main(void) {
         itoa(lastFrameDuration, stringBuffer, 10);
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
-
             FillBufferWithColor(ST7735_BLACK);
-            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount/6) % 7]);
+            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount / 6) % 7]);
             DrawDVD();
 
             DrawStringIntroBuffer(5, 5, stringBuffer, ST7735_WHITE, Font_7x10);
+            DrawStringIntroBuffer(5, 15, testText, ST7735_WHITE, Font_7x10);
 
-            DrawStringIntroBuffer(5, 14, testText, ST7735_WHITE, Font_7x10);
+            DrawSpriteIntroBuffer(20, 64, 16,16, sprite_snakeTail, NORMAL, NORMAL);
+            DrawSpriteIntroBuffer(36, 64, 16, 16, sprite_snakeHorizontal, NORMAL, NORMAL);
+            DrawSpriteIntroBuffer(52, 64, 16, 16, sprite_snakeHorizontal, NORMAL, NORMAL);
+            DrawSpriteIntroBuffer(48, 64, 16, 16, sprite_snakeHorizontal, NORMAL, NORMAL);
+            DrawSpriteIntroBuffer(48+16, 64, 16, 16, sprite_snake_head, NORMAL, NORMAL);
+            DrawSpriteIntroBuffer(106, 64, 16, 16, sprite_apple, NORMAL, NORMAL);
 
             DrawSpriteIntroBuffer(100, 100, 16, 16, sprite_snake_head, FLIPPED, FLIPPED);
             ST7735_DrawBuffer(bufferIndex, buffer);
@@ -97,7 +102,6 @@ int main(void) {
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
     }
-
 }
 
 void TIM_INIT() {
@@ -107,7 +111,7 @@ void TIM_INIT() {
     tim2.Instance = TIM2;
 #ifdef clock128
     tim2.Init.Period = 65535;
-    tim2.Init.Prescaler = 6400-1;
+    tim2.Init.Prescaler = 6400 - 1;
 #else
     tim2.Init.Period = 65535;
     tim2.Init.Prescaler = 7200-1;
@@ -120,11 +124,11 @@ void TIM_INIT() {
 
     tim3.Instance = TIM3;
 #ifdef clock128
-    tim2.Init.Period = 65535;
-    tim2.Init.Prescaler = 64-1;
+    tim3.Init.Period = 65535;
+    tim3.Init.Prescaler = 64 - 1;
 #else
-    tim2.Init.Period = 65535;
-    tim2.Init.Prescaler = 72-1;
+    tim3.Init.Period = 65535;
+    tim3.Init.Prescaler = 72-1;
 #endif
 
     tim3.Init.ClockDivision = 0;
@@ -250,26 +254,22 @@ void SystemClock_Config128(void) {
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         Error_Handler();
     }
 
     /** Initializes the CPU, AHB and APB buses clocks
     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                                  |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
         Error_Handler();
     }
 }
-
 
 
 void MX_DMA_Init(void) {
