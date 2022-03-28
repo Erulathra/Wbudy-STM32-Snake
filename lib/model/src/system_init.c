@@ -167,3 +167,15 @@ void MX_DMA_Init(void) {
     HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 }
+
+void DMA_Init(void) {
+    dma1.Instance = DMA1_Channel1;
+    dma1.Init.Direction = DMA_MEMORY_TO_MEMORY;
+    dma1.Init.PeriphInc = DMA_PINC_DISABLE;
+    dma1.Init.MemInc = DMA_MINC_ENABLE;
+    dma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    dma1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    dma1.Init.Mode = DMA_NORMAL;
+    dma1.Init.Priority = DMA_PRIORITY_HIGH;
+    HAL_DMA_Init(&dma1);
+}

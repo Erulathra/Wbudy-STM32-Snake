@@ -7,6 +7,7 @@
 #define clock128
 
 extern SPI_HandleTypeDef spi;
+extern DMA_HandleTypeDef dma1;
 extern DMA_HandleTypeDef dma3;
 extern TIM_HandleTypeDef tim2;
 extern TIM_HandleTypeDef tim3;
@@ -17,5 +18,6 @@ void MX_DMA_Init(void);
 void GPIO_INIT();
 void SPI_INIT();
 void TIM_INIT();
+void DMA_Init(void);
 
 #endif //WBUDY_STM32_SNAKE_SYSTEM_INIT_H

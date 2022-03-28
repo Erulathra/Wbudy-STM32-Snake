@@ -14,6 +14,7 @@
 #pragma ide diagnostic ignored "EndlessLoop"
 
 SPI_HandleTypeDef spi;
+DMA_HandleTypeDef dma1;
 DMA_HandleTypeDef dma3;
 TIM_HandleTypeDef tim2;
 TIM_HandleTypeDef tim3;
@@ -28,6 +29,7 @@ int main(void) {
 #endif
     HAL_Init();
 
+    DMA_Init();
     MX_DMA_Init();
     GPIO_INIT();
     SPI_INIT();

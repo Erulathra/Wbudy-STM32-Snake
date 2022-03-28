@@ -1,6 +1,8 @@
 #include <malloc.h>
 #include "ST7735_buffer.h"
 
+extern DMA_HandleTypeDef dma1;
+
 void CalculateVerticalWindow(uint16_t bufferY, int16_t *y, uint8_t *h, uint8_t *offsetY);
 
 void CalculateHorizontalWindow(int16_t *x, uint8_t *w, uint8_t *offsetX);
@@ -114,21 +116,27 @@ void DrawRectangleIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, uint16
     CalculateVerticalWindow(bufferY, &y, &h, &offsetY);
     CalculateHorizontalWindow(&x, &w, &offsetX);
 
+    color = ST7735_SWAP_BYTES(color);
+
+    dma1.Init.PeriphInc = DMA_PINC_DISABLE;
+    HAL_DMA_Init(&dma1);
+
     for (uint16_t i = 0; i < h; ++i) {
-        for (uint16_t j = 0; j < w; ++j) {
-            buffer[i + y][j + x] = ST7735_SWAP_BYTES(color);
-        }
+        HAL_DMA_Start(&dma1, (uint32_t)&color, ((uint32_t)buffer) + (x + (i + y) * ST7735_SCREEN_WIDTH) * 2,w);
+        HAL_DMA_PollForTransfer(&dma1, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
     }
 
 
 }
 
 void FillBufferWithColor(uint16_t color) {
-    for (uint16_t i = 0; i < ST7735_SCREEN_WIDTH; ++i) {
-        for (uint16_t j = 0; j < BUFFER_HEIGHT; ++j) {
-            buffer[j][i] = ST7735_SWAP_BYTES(color);
-        }
-    }
+    dma1.Init.PeriphInc = DMA_PINC_DISABLE;
+    HAL_DMA_Init(&dma1);
+
+    color = ST7735_SWAP_BYTES(color);
+    HAL_DMA_Start(&dma1, (uint32_t)&color, (uint32_t)buffer,ST7735_SCREEN_WIDTH * BUFFER_HEIGHT);
+    HAL_DMA_PollForTransfer(&dma1, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
+
 }
 
 void DrawHorizontalLineIntroBuffer(int16_t x, int16_t y, uint8_t w, uint16_t color) {
