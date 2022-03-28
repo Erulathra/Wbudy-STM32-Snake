@@ -9,11 +9,10 @@
 #define ONE_WIRE_DATA_LOW HAL_GPIO_WritePin(ONE_WIRE_DATA_PORT, ONE_WIRE_DATA_PIN, GPIO_PIN_RESET)
 #define ONE_WIRE_DATA_READ HAL_GPIO_ReadPin(ONE_WIRE_DATA_PORT, ONE_WIRE_DATA_PIN)
 
-
 double ReadTemp();
-int8_t DS18B20_Start (void);
-void DS18B20_Write (uint8_t data);
-uint8_t DS18B20_Read (void);
+int8_t DS18B20_Start(void);
+void DS18B20_Write(uint8_t data);
+uint8_t DS18B20_Read(void);
 void DS18B20_Init(void);
 
 #endif //WBUDY_STM32_SNAKE_DS18B20_H

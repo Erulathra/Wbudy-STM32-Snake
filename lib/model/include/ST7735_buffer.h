@@ -3,13 +3,7 @@
 
 #include "ST7735.h"
 #include "font.h"
-
-#define BUFFER_HEIGHT 32
-#define BUFFER_COUNT 4
-#define ST7735_SCREEN_WIDTH 128
-#define ST7735_SCREEN_HEIGHT 128
-
-#define TRANSPARENCY_COLOR 0xf81f
+#include "ST7735_buffer_settings.h"
 
 #define NORMAL 1
 #define FLIPPED -1

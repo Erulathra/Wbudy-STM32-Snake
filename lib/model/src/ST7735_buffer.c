@@ -154,7 +154,7 @@ void DrawCharIntroBuffer(int16_t x, int16_t y, char ch, uint16_t textColor, Font
                 characterBuffer[j + i * font.width] = textColor;
             }
             else {
-                characterBuffer[j + i * font.width] = TRANSPARENCY_PINK;
+                characterBuffer[j + i * font.width] = TRANSPARENCY_COLOR;
             }
         }
     }

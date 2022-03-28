@@ -1,26 +1,23 @@
 #include "ftoa.h"
 
-#define MAX_PRECISION	(10)
-static const double rounders[MAX_PRECISION + 1] =
-        {
-                0.5,				// 0
-                0.05,				// 1
-                0.005,				// 2
-                0.0005,				// 3
-                0.00005,			// 4
-                0.000005,			// 5
-                0.0000005,			// 6
-                0.00000005,			// 7
-                0.000000005,		// 8
-                0.0000000005,		// 9
-                0.00000000005		// 10
-        };
+#define MAX_PRECISION    (10)
+static const double rounders[MAX_PRECISION + 1] = {0.5,                // 0
+                                                   0.05,                // 1
+                                                   0.005,                // 2
+                                                   0.0005,                // 3
+                                                   0.00005,            // 4
+                                                   0.000005,            // 5
+                                                   0.0000005,            // 6
+                                                   0.00000005,            // 7
+                                                   0.000000005,        // 8
+                                                   0.0000000005,        // 9
+                                                   0.00000000005        // 10
+};
 
-char * ftoa(double f, char * buf, int precision)
-{
-    char * ptr = buf;
-    char * p = ptr;
-    char * p1;
+char *ftoa(double f, char *buf, int precision) {
+    char *ptr = buf;
+    char *p = ptr;
+    char *p1;
     char c;
     long intPart;
 
@@ -29,8 +26,7 @@ char * ftoa(double f, char * buf, int precision)
         precision = MAX_PRECISION;
 
     // sign stuff
-    if (f < 0)
-    {
+    if (f < 0) {
         f = -f;
         *ptr++ = '-';
     }
@@ -56,14 +52,12 @@ char * ftoa(double f, char * buf, int precision)
 
     if (!intPart)
         *ptr++ = '0';
-    else
-    {
+    else {
         // save start pointer
         p = ptr;
 
         // convert (reverse order)
-        while (intPart)
-        {
+        while (intPart) {
             *p++ = '0' + intPart % 10;
             intPart /= 10;
         }
@@ -72,8 +66,7 @@ char * ftoa(double f, char * buf, int precision)
         p1 = p;
 
         // reverse result
-        while (p > ptr)
-        {
+        while (p > ptr) {
             c = *--p;
             *p = *ptr;
             *ptr++ = c;
@@ -84,14 +77,12 @@ char * ftoa(double f, char * buf, int precision)
     }
 
     // decimal part
-    if (precision)
-    {
+    if (precision) {
         // place decimal point
         *ptr++ = '.';
 
         // convert
-        while (precision--)
-        {
+        while (precision--) {
             f *= 10.0;
             c = f;
             *ptr++ = '0' + c;

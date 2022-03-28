@@ -108,19 +108,6 @@ void ST7735_Init() {
     TFT_CS_HIGH();
 }
 
-void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
-    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT))
-        return;
-
-    TFT_CS_LOW();
-
-    ST7735_SetAddressWindow(x, y, x + 1, y + 1);
-    uint8_t data[] = {color >> 8, color & 0xFF};
-    ST7735_WriteData(data, sizeof(data));
-
-    TFT_CS_HIGH();
-}
-
 void ST7735_FillRectangle(uint16_t x, uint16_t i, uint16_t w, uint16_t h, uint16_t color) {
     // clipping
     if ((x >= ST7735_SCREEN_WIDTH) || (i >= ST7735_SCREEN_HEIGHT)) return;
@@ -146,66 +133,13 @@ void ST7735_FillScreen(uint16_t color) {
     ST7735_FillRectangle(0, 0, ST7735_SCREEN_WIDTH, ST7735_SCREEN_HEIGHT, color);
 }
 
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, uint16_t *data) {
-    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT)) return;
-    if ((x + w * size - 1) >= ST7735_SCREEN_WIDTH) return;
-    if ((y + w * size - 1) >= ST7735_SCREEN_HEIGHT) return;
-
-
-    TFT_CS_LOW();
-    ST7735_SetAddressWindow(x, y, x + w * size - 1, y + h * size - 1);
-
-    uint16_t lineBuffer[w * size];
-    uint16_t *lineBuffer_ptr = lineBuffer;
-    uint16_t *data_ptr = data;
-
-    for (int i = h; i > 0; i--) {
-        lineBuffer_ptr = lineBuffer;
-
-        for (int j = 0; j < w; ++j) {
-            for (int k = 0; k < size; ++k) {
-                //*lineBuffer_ptr = ST7735_SWAP_BYTES(*data_ptr);
-                *lineBuffer_ptr = (*data_ptr);
-                lineBuffer_ptr++;
-            }
-            data_ptr++;
-        }
-
-        for (int k = 0; k < size; ++k) {
-            ST7735_WriteData((uint8_t *) lineBuffer, sizeof(lineBuffer));
-        }
-    }
-    TFT_CS_HIGH();
-}
-
-void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
-
-    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT)) return;
-    if ((x + w - 1) >= ST7735_SCREEN_WIDTH) w = ST7735_SCREEN_WIDTH - x;
-
-    ST7735_FillRectangle(x, y, w, 1, color);
-
-}
-
-void ST7735_DrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-    TFT_CS_LOW();
-
-    // Rudimentary clipping
-    if ((x >= ST7735_SCREEN_WIDTH) || (y >= ST7735_SCREEN_HEIGHT)) return;
-    if ((y + h - 1) >= ST7735_SCREEN_HEIGHT) h = ST7735_SCREEN_HEIGHT - y;
-
-    ST7735_FillRectangle(x, y, 1, h, color);
-}
-
-void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[BUFFER_HEIGHT][ST7735_SCREEN_WIDTH]) {
+void ST7735_DrawBuffer(uint16_t bufferIteration) {
     if (bufferIteration > BUFFER_COUNT - 1) return;
 
     uint16_t startY = bufferIteration * BUFFER_HEIGHT;
 
     TFT_CS_LOW();
-    ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 1, startY + BUFFER_HEIGHT );
-    //ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 10, startY + BUFFER_HEIGHT - 1);
-
+    ST7735_SetAddressWindow(0, startY, ST7735_SCREEN_WIDTH - 1, startY + BUFFER_HEIGHT);
     ST7735_WriteData((uint8_t *) buffer, ST7735_SCREEN_WIDTH * BUFFER_HEIGHT * 2);
     TFT_CS_HIGH();
 }

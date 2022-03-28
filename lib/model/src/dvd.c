@@ -39,7 +39,6 @@ void DrawDVD() {
     DrawSpriteIntroBuffer(dvd.x, dvd.y, LOGO_SIZE, LOGO_SIZE, LOGO, NORMAL, NORMAL);
 }
 
-
 uint16_t RandomColor() {
 
     bounceCount %= 7;

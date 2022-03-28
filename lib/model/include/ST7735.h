@@ -5,10 +5,6 @@
 #include "ST7735_buffer.h"
 #include "font.h"
 
-#define TRANSPARENCY_PINK 0xf81f
-#define BUFFER_HEIGHT 32
-#define BUFFER_COUNT 4
-
 #define ST7735_RESET GPIO_PIN_13
 #define ST7735_RESET_PORT GPIOB
 #define ST7735_DC GPIO_PIN_14
@@ -162,12 +158,6 @@ void setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 void ST7735_FillRectangle(uint16_t x, uint16_t i, uint16_t w, uint16_t h, uint16_t color);
 void ST7735_FillScreen(uint16_t color);
-void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
-void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint8_t size, uint16_t *data);
-void ST7735_DrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
-void ST7735_DrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
-void ST7735_DrawChar(int16_t x, int16_t y, char c, int16_t textColor, uint8_t size);
-void ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor);
-void ST7735_DrawBuffer(uint16_t bufferIteration, uint16_t buffer[BUFFER_HEIGHT][ST7735_SCREEN_WIDTH]);
+void ST7735_DrawBuffer(uint16_t bufferIteration);
 
 #endif //WBUDY_STM32_SNAKE_ST7735_H
