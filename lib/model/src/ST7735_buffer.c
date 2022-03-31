@@ -91,8 +91,8 @@ void DrawSpriteIntroBuffer(int16_t x, int16_t y, uint8_t w, uint8_t h, const uin
 
     for (uint16_t i = 0; i < h; ++i) {
         for (uint16_t j = 0; j < w; ++j) {
-            uint8_t horizontalDataIndex = widthFlipFactor * (originalWidth - 1) + (j + offsetX) * flipVertically;
-            uint8_t verticalDataIndex = heightFlipFactor * (originalHeight - 1) + (i + offsetY) * flipVertically;
+            uint8_t horizontalDataIndex = (widthFlipFactor * (originalWidth - 1)) + (j + offsetX) * flipHorizontally;
+            uint8_t verticalDataIndex = (heightFlipFactor * (originalHeight - 1)) + (i + offsetY) * flipVertically;
             uint16_t color = data[horizontalDataIndex + (verticalDataIndex * originalWidth)];
 
             if (color == TRANSPARENCY_COLOR) {

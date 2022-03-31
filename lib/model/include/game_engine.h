@@ -14,17 +14,31 @@
 #define BOARD_SIZE 8
 #define SEGMENT_SIZE 16
 
+#define STARTING_POINT_SNAKE_X 0
+#define STARTING_POINT_SNAKE_Y 7
+
 struct Snake {
     uint8_t x;
     uint8_t y;
     uint8_t direction;
+    uint8_t tailLength;
 } snake;
 
+uint8_t tail[16];
+
+
 void Snake_MoveSnake();
+
 //TODO: to cza zmienic
 void Snake_ChangeDirection(uint8_t newDirection);
+
 void Snake_DrawSnake();
-void Snake_GameOver();
+
+int8_t Snake_GameOver();
+
+void Snake_GameOverScreen();
+
+void Snake_MoveTail();
 
 _Noreturn void GameEngineLoop();
 

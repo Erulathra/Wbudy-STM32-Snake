@@ -3,46 +3,37 @@
 #include "ST7735_buffer.h"
 #include "sprites.h"
 #include "images.h"
-#include "dvd.h"
 
 extern TIM_HandleTypeDef tim2;
 
-
 _Noreturn void GameEngineLoop() {
-    InitializeDVD(10, 10, 3, 2, 1);
-
     uint64_t frameCount = 0;
     uint8_t lastFrameDuration = 0;
 
-    snake.x = 2;
-    snake.y = 3;
+    snake.x = STARTING_POINT_SNAKE_X;
+    snake.y = STARTING_POINT_SNAKE_Y;
+    snake.tailLength = 1;
+
 
     for (;;) {
-        MoveDVD();
-        if (!(frameCount % 60)) {
-            //Snake_MoveSnake();
+        if (!(frameCount % 15)) {
+            Snake_MoveSnake();
+            if (Snake_GameOver() == TRUE) {
+                Snake_GameOverScreen();
+                snake.x = STARTING_POINT_SNAKE_X;
+                snake.y = STARTING_POINT_SNAKE_Y;
+                snake.tailLength = 1;
+                for (int8_t i; i<16; i++)
+                    tail[i] = 0;
+            }
+            Snake_MoveTail();
         }
-        Snake_ChangeDirection(NORTH);
+        Snake_ChangeDirection(EAST);
 
-        static char stringBuffer[10];
-        itoa(lastFrameDuration, stringBuffer, 10);
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
-            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount / 6) % 7]);
-            //Snake_DrawSnake();
-
-
-            DrawSpriteIntroBuffer(100, 100, 16, 16, sprite_snake_head_horizontal, FLIPPED, NORMAL);
-
-            DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                  sprite_snake_head_vertical, NORMAL, FLIPPED);
-//            DrawSpriteIntroBuffer((snake.x + 1) * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-//                                  sprite_snake_head_horizontal, NORMAL, NORMAL);
-//            DrawSpriteIntroBuffer((snake.x + 2) * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-//                                  sprite_snake_head_vertical, NORMAL, NORMAL);
-//            DrawSpriteIntroBuffer((snake.x + 3) * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-//                                  sprite_snake_head_horizontal, NORMAL, FLIPPED);
+            Snake_DrawSnake();
 
             ST7735_DrawBuffer(bufferIndex);
         }
@@ -98,4 +89,41 @@ void Snake_DrawSnake() {
     }
 }
 
+int8_t Snake_GameOver() {
+    if (snake.x == BOARD_SIZE || snake.x == 255 || snake.y == BOARD_SIZE || snake.y == 255)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+void Snake_GameOverScreen() {
+    uint64_t frameCount = 0;
+    uint8_t lastFrameDuration = 0;
+
+    for (;;) {
+        for (int j = 0; j < BUFFER_COUNT; ++j) {
+            bufferIndex = j;
+            FillBufferWithColor(ST7735_BLACK);
+            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount / 6) % 7]);
+
+            ST7735_DrawBuffer(bufferIndex);
+        }
+
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
+        if (lastFrameDuration < 16) {
+            HAL_Delay(16 - lastFrameDuration);
+        }
+        __HAL_TIM_SET_COUNTER(&tim2, 0);
+        frameCount++;
+
+        //TODO: Zacznij znowu po wciśnięciu przycisku
+        if (frameCount == 60)
+            return;
+    }
+}
+
+void Snake_MoveTail() {
+    tail[0] << 1;
+    return;
+}
 
