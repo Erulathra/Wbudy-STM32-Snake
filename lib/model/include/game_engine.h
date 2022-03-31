@@ -8,7 +8,10 @@
 #define SOUTH 2
 #define WEST 3
 
-#define BOARD_SIZE 16
+#define TRUE 1
+#define FALSE 0
+
+#define BOARD_SIZE 8
 #define SEGMENT_SIZE 16
 
 struct Snake {
@@ -17,8 +20,12 @@ struct Snake {
     uint8_t direction;
 } snake;
 
-void MoveSnake();
+void Snake_MoveSnake();
 //TODO: to cza zmienic
-void ChangeDirection(uint8_t newDirection);
-void DrawSnake();
+void Snake_ChangeDirection(uint8_t newDirection);
+void Snake_DrawSnake();
+void Snake_GameOver();
+
+_Noreturn void GameEngineLoop();
+
 #endif //WBUDY_STM32_SNAKE_GAME_ENGINE_H
