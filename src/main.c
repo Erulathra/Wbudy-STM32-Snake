@@ -9,6 +9,7 @@
 #include "ftoa.h"
 #include "system_init.h"
 #include "interrupts_handlers.h"
+#include "game_engine.h"
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
@@ -63,6 +64,10 @@ void GameLoop() {
 
     for (;;) {
         MoveDVD();
+        if (!(frameCount%60)){
+            MoveSnake();
+        }
+        ChangeDirection(SOUTH);
 
         static char stringBuffer[10];
         itoa(lastFrameDuration, stringBuffer, 10);
@@ -71,6 +76,7 @@ void GameLoop() {
             FillBufferWithColor(ST7735_BLACK);
             DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount / 6) % 7]);
             DrawDVD();
+            DrawSnake();
 
             DrawStringIntroBuffer(5, 5, stringBuffer, ST7735_WHITE, Font_7x10);
             //DrawStringIntroBuffer(5, 15, testText, ST7735_WHITE, Font_7x10);
