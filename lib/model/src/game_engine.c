@@ -14,8 +14,26 @@ _Noreturn void GameEngineLoop() {
     snake.y = STARTING_POINT_SNAKE_Y;
     snake.tailLength = 1;
 
+    uint8_t moveDirection = EAST;
+
 
     for (;;) {
+        //READ INPUT - needs changes
+        if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+            moveDirection = NORTH;
+        }
+        else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)) {
+            moveDirection = EAST;
+        }
+        else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)) {
+            moveDirection = WEST;
+        }
+        else if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
+            moveDirection = SOUTH;
+        }
+
+
+
         if (!(frameCount % 15)) {
             Snake_MoveSnake();
             if (Snake_GameOver() == TRUE) {
@@ -23,12 +41,13 @@ _Noreturn void GameEngineLoop() {
                 snake.x = STARTING_POINT_SNAKE_X;
                 snake.y = STARTING_POINT_SNAKE_Y;
                 snake.tailLength = 1;
+                moveDirection = EAST;
                 for (int8_t i; i<16; i++)
                     tail[i] = 0;
             }
             Snake_MoveTail();
         }
-        Snake_ChangeDirection(EAST);
+        Snake_ChangeDirection(moveDirection);
 
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
@@ -123,7 +142,7 @@ void Snake_GameOverScreen() {
 }
 
 void Snake_MoveTail() {
-    tail[0] << 1;
+    //tail[0] << 1;
     return;
 }
 

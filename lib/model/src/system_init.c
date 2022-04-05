@@ -69,6 +69,29 @@ void GPIO_INIT() {
     HAL_GPIO_Init(GPIOC, &gpio);
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 
+    //Button NORTH setup - PA1
+    gpio.Pin = GPIO_PIN_1;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    //Button EAST setup - PA2
+    gpio.Pin = GPIO_PIN_2;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    //Button WEST setup - PA3
+    gpio.Pin = GPIO_PIN_3;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    //Button SOUTH setup - PB0
+    gpio.Pin = GPIO_PIN_0;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &gpio);
 }
 
 void SystemClock_Config72(void) {
