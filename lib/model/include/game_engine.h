@@ -16,6 +16,9 @@
 
 #define STARTING_POINT_SNAKE_X 0
 #define STARTING_POINT_SNAKE_Y 7
+#define STARTING_DIRECTION_SNAKE 0
+
+#define GAME_SPEED 30
 
 struct Snake {
     uint8_t x;
@@ -27,19 +30,24 @@ struct Snake {
 uint8_t tail[16];
 
 
+_Noreturn void GameEngineLoop();
+
+void Mode_Temperature();
+
+void Mode_GameOver();
+
+void Mode_Snake(uint64_t);
+
 void Snake_MoveSnake();
 
-//TODO: to cza zmienic
-void Snake_ChangeDirection(uint8_t newDirection);
+void Snake_MoveTail();
 
 void Snake_DrawSnake();
 
 int8_t Snake_GameOver();
 
-void Snake_GameOverScreen();
+int8_t CheckInput(int8_t);
 
-void Snake_MoveTail();
 
-_Noreturn void GameEngineLoop();
 
 #endif //WBUDY_STM32_SNAKE_GAME_ENGINE_H
