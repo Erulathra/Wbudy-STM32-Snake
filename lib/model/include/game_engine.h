@@ -53,6 +53,8 @@ uint8_t CheckBit(uint8_t bit, uint8_t byte);
 
 int8_t Snake_GameOver();
 
+int8_t Snake_TailCollision();
+
 int8_t CheckInput(int8_t);
 
 

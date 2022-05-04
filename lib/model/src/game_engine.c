@@ -301,10 +301,42 @@ uint8_t CheckBit(uint8_t bit, uint8_t byte){
 }
 
 int8_t Snake_GameOver() {
-    if (snake.x == BOARD_SIZE || snake.x == 255 || snake.y == BOARD_SIZE || snake.y == 255)
+    if (snake.x == BOARD_SIZE || snake.x == 255 || snake.y == BOARD_SIZE || snake.y == 255 || Snake_TailCollision() == TRUE)
         return TRUE;
     else
         return FALSE;
+}
+
+int8_t Snake_TailCollision() {
+    uint8_t pos_x = snake.x;
+    uint8_t pos_y = snake.y;
+
+
+    for(uint8_t i = 0; i < snake.tailLength; i++) {
+        switch (CheckBit(6 - (i % 4) * 2, tail[(int) floorf(i / 4)]) >> (6 - (i % 4) * 2)) {
+            case NORTH:
+                pos_y -= 1;
+                if(pos_y == snake.y && pos_x == snake.x)
+                    return TRUE;
+                break;
+            case EAST:
+                pos_x += 1;
+                if(pos_y == snake.y && pos_x == snake.x)
+                    return TRUE;
+                break;
+            case SOUTH:
+                pos_y += 1;
+                if(pos_y == snake.y && pos_x == snake.x)
+                    return TRUE;
+                break;
+            case WEST:
+                pos_x -= 1;
+                if(pos_y == snake.y && pos_x == snake.x)
+                    return TRUE;
+                break;
+        }
+    }
+    return FALSE;
 }
 
 int8_t CheckInput(int8_t def) {
