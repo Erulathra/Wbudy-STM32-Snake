@@ -9,6 +9,8 @@ const extern uint16_t sprite_snake_head_horizontal[];
 const extern uint16_t sprite_logo[];
 const extern uint16_t sprite_apple[];
 const extern uint16_t sprite_snakeTail[];
+const extern uint16_t snakeTailVertical[];
+const extern uint16_t snakeTailHorizontal[];
 const extern uint16_t sprite_snake_head_eating_horizontal[];
 const extern uint16_t sprite_snakeHorizontal[];
 const extern uint16_t sprite_snakeCorner[];

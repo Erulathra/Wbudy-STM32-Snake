@@ -15,8 +15,9 @@
 #define SEGMENT_SIZE 16
 
 #define STARTING_POINT_SNAKE_X 0
-#define STARTING_POINT_SNAKE_Y 7
-#define STARTING_DIRECTION_SNAKE 0
+#define STARTING_POINT_SNAKE_Y 0
+#define STARTING_DIRECTION_SNAKE 2
+#define STARTING_TAIL_LENGTH 10
 
 #define GAME_SPEED 30
 
@@ -42,7 +43,13 @@ void Snake_MoveSnake();
 
 void Snake_MoveTail();
 
-void Snake_DrawSnake();
+void Snake_DrawSnakeHead();
+
+void Snake_RemoveLastPart();
+
+void Snake_DrawSnakeTail();
+
+uint8_t CheckBit(uint8_t bit, uint8_t byte);
 
 int8_t Snake_GameOver();
 
