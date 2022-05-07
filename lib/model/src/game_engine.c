@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "math.h"
 #include "game_engine.h"
 #include "ST7735_buffer.h"
@@ -19,8 +20,10 @@ _Noreturn void GameEngineLoop() {
     snake.direction = STARTING_DIRECTION_SNAKE;
     snake.tailLength = STARTING_TAIL_LENGTH;
 
+    Snake_PutAppleOnBoard(frameCount);
+
     for (;;) {
-        if (FALSE && !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
+        if ( FALSE && !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
             Mode_Temperature();
         }
         else if (Snake_GameOver() == TRUE) {
@@ -80,6 +83,8 @@ void Mode_GameOver() {
     snake.direction = STARTING_DIRECTION_SNAKE;
     snake.tailLength = STARTING_TAIL_LENGTH;
 
+    Snake_PutAppleOnBoard(frameCount);
+
     for (int8_t i = 0; i<16; i++)
         tail[i] = 0;
 
@@ -111,6 +116,7 @@ void Mode_Snake(uint64_t frameCount) {
     if (!(frameCount % GAME_SPEED)) {
         Snake_MoveSnake();
         Snake_MoveTail();
+        Snake_CanSnakeEatApple(frameCount);
         Snake_RemoveLastPart();
     }
 
@@ -120,6 +126,7 @@ void Mode_Snake(uint64_t frameCount) {
 
         Snake_DrawSnakeHead();
         Snake_DrawSnakeTail();
+        Snake_DrawApple();
 
         ST7735_DrawBuffer(bufferIndex);
     }
@@ -146,7 +153,7 @@ void Snake_MoveTail() {
     // Every segment of snake is stored on 2 bits.
     // It's true position is known by moving along the tail.
     // Tail can have assigned one of 4 states, witch
-    // determine in witch direction the head is.
+    // determine in witch direction next segment of tail is.
 
     // Check the state of last segment of tail.
     uint8_t buf1;
@@ -198,7 +205,7 @@ void Snake_DrawSnakeHead() {
     }
 }
 
-void Snake_DrawSnakeTail(){
+void Snake_DrawSnakeTail() {
     // Variables to follow position of tail.
     uint8_t pos_x = snake.x;
     uint8_t pos_y = snake.y;
@@ -295,43 +302,72 @@ void Snake_DrawSnakeTail(){
     }
 }
 
-uint8_t CheckBit(uint8_t bit, uint8_t byte){
+void Snake_PutAppleOnBoard(uint8_t thingForSeed) {
+    DS18B20_Init();
+    do{
+        srand(ReadTemp() + thingForSeed);
+        apple.x = rand() % BOARD_SIZE;
+        srand(ReadTemp() + thingForSeed);
+        apple.y = rand() % BOARD_SIZE;
+    } while(Snake_TailCollision(apple.x, apple.y) || (snake.x == apple.x && snake.y == apple.y));
+}
+
+void Snake_DrawApple() {
+    DrawSpriteIntroBuffer(apple.x * SEGMENT_SIZE, apple.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                          sprite_apple, FLIPPED, NORMAL);
+}
+
+void Snake_CanSnakeEatApple(uint8_t frameCount) {
+    if (snake.x == apple.x && snake.y == apple.y) {
+        apple.eaten = TRUE;
+
+        if (snake.tailLength < 63)
+            snake.tailLength++;
+        else
+            Snake_GameOver();
+
+        Snake_PutAppleOnBoard(frameCount);
+        return;
+    }
+    apple.eaten = FALSE;
+}
+
+uint8_t CheckBit(uint8_t bit, uint8_t byte) {
     bit = 3 << bit;
     return(bit & byte);
 }
 
 int8_t Snake_GameOver() {
-    if (snake.x == BOARD_SIZE || snake.x == 255 || snake.y == BOARD_SIZE || snake.y == 255 || Snake_TailCollision() == TRUE)
+    if (snake.x == BOARD_SIZE || snake.x == 255 || snake.y == BOARD_SIZE || snake.y == 255 || Snake_TailCollision(snake.x, snake.y) == TRUE)
         return TRUE;
     else
         return FALSE;
 }
 
-int8_t Snake_TailCollision() {
+int8_t Snake_TailCollision(int8_t col_with_x, int8_t  col_with_y) {
     uint8_t pos_x = snake.x;
     uint8_t pos_y = snake.y;
-
 
     for(uint8_t i = 0; i < snake.tailLength; i++) {
         switch (CheckBit(6 - (i % 4) * 2, tail[(int) floorf(i / 4)]) >> (6 - (i % 4) * 2)) {
             case NORTH:
                 pos_y -= 1;
-                if(pos_y == snake.y && pos_x == snake.x)
+                if(pos_y == col_with_y && pos_x == col_with_x)
                     return TRUE;
                 break;
             case EAST:
                 pos_x += 1;
-                if(pos_y == snake.y && pos_x == snake.x)
+                if(pos_y == col_with_y && pos_x == col_with_x)
                     return TRUE;
                 break;
             case SOUTH:
                 pos_y += 1;
-                if(pos_y == snake.y && pos_x == snake.x)
+                if(pos_y == col_with_y && pos_x == col_with_x)
                     return TRUE;
                 break;
             case WEST:
                 pos_x -= 1;
-                if(pos_y == snake.y && pos_x == snake.x)
+                if(pos_y == col_with_y && pos_x == col_with_x)
                     return TRUE;
                 break;
         }

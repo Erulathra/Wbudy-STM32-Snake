@@ -17,7 +17,7 @@
 #define STARTING_POINT_SNAKE_X 0
 #define STARTING_POINT_SNAKE_Y 0
 #define STARTING_DIRECTION_SNAKE 2
-#define STARTING_TAIL_LENGTH 10
+#define STARTING_TAIL_LENGTH 2
 
 #define GAME_SPEED 30
 
@@ -27,6 +27,12 @@ struct Snake {
     uint8_t direction;
     uint8_t tailLength;
 } snake;
+
+struct Apple {
+    uint8_t x;
+    uint8_t y;
+    uint8_t eaten;
+} apple;
 
 uint8_t tail[16];
 
@@ -49,13 +55,20 @@ void Snake_RemoveLastPart();
 
 void Snake_DrawSnakeTail();
 
+void Snake_PutAppleOnBoard(uint8_t);
+
+void Snake_DrawApple();
+
+void Snake_CanSnakeEatApple(uint8_t);
+
 uint8_t CheckBit(uint8_t bit, uint8_t byte);
 
 int8_t Snake_GameOver();
 
-int8_t Snake_TailCollision();
+int8_t Snake_TailCollision(int8_t, int8_t);
 
 int8_t CheckInput(int8_t);
+
 
 
 
