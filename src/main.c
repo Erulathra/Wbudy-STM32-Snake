@@ -15,6 +15,7 @@
 SPI_HandleTypeDef spi;
 DMA_HandleTypeDef dma1;
 DMA_HandleTypeDef dma3;
+TIM_HandleTypeDef tim1;
 TIM_HandleTypeDef tim2;
 TIM_HandleTypeDef tim3;
 
@@ -41,6 +42,22 @@ int main(void) {
     ST7735_Init();
     ST7735_FillScreen(ST7735_BLUE);
 
+    tim1.Instance = TIM1;
+    tim1.Init.Period = 999;
+    tim1.Init.Prescaler = 127;
+    tim1.Init.ClockDivision = 0;
+    tim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+    tim1.Init.RepetitionCounter = 0;
+    tim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+
+    __HAL_RCC_TIM1_CLK_ENABLE();
+
+
+    HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
+
+    __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, 1000);
+
+    __HAL_TIM_SET_COUNTER(&tim1, 0);
 
     DS18B20_Init();
     char tempText[10];
