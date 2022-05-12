@@ -50,19 +50,11 @@ int main(void) {
     tim1.Init.RepetitionCounter = 0;
     tim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
 
-    __HAL_RCC_TIM1_CLK_ENABLE();
-
-
-    HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
-
-    __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, 1000);
-
-    __HAL_TIM_SET_COUNTER(&tim1, 0);
 
     DS18B20_Init();
     char tempText[10];
-    double testTemp = ReadTemp() * 0.0625;
-    ftoa(testTemp, tempText, 4);
+    double temp = ReadTemp();
+    srand(temp);
     HAL_TIM_Base_Start(&tim2);
     __HAL_TIM_SET_COUNTER(&tim2, 0);
 

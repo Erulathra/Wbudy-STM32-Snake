@@ -187,20 +187,48 @@ void Snake_RemoveLastPart() {
 void Snake_DrawSnakeHead() {
     switch (snake.direction) {
         case NORTH:
-            DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                  sprite_snake_head_vertical, NORMAL, FLIPPED);
+            if(EAST == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_vertical_horizontal, FLIPPED, FLIPPED);
+            else if(WEST == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_vertical_horizontal, NORMAL, FLIPPED);
+            else
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      sprite_snake_head_vertical, NORMAL, FLIPPED);
             break;
         case EAST:
-            DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                  sprite_snake_head_horizontal, NORMAL, NORMAL);
+            if(NORTH == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_horizontal_vertical, NORMAL, FLIPPED);
+            else if(SOUTH == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_horizontal_vertical, NORMAL, NORMAL);
+            else
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      sprite_snake_head_horizontal, NORMAL, NORMAL);
             break;
         case SOUTH:
-            DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+            if(EAST == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_vertical_horizontal, FLIPPED, NORMAL);
+            else if(WEST == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_vertical_horizontal, NORMAL, NORMAL);
+            else
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
                                   sprite_snake_head_vertical, NORMAL, NORMAL);
             break;
         case WEST:
-            DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                  sprite_snake_head_horizontal, FLIPPED, NORMAL);
+            if(NORTH == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_horizontal_vertical, FLIPPED, FLIPPED);
+            else if(SOUTH == CheckBit( 6, tail[0]) >> 6)
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      snake_head_horizontal_vertical, FLIPPED, NORMAL);
+            else
+                DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
+                                      sprite_snake_head_horizontal, FLIPPED, NORMAL);
             break;
     }
 }
@@ -305,9 +333,7 @@ void Snake_DrawSnakeTail() {
 void Snake_PutAppleOnBoard(uint8_t thingForSeed) {
     DS18B20_Init();
     do{
-        srand(ReadTemp() + thingForSeed);
         apple.x = rand() % BOARD_SIZE;
-        srand(ReadTemp() + thingForSeed);
         apple.y = rand() % BOARD_SIZE;
     } while(Snake_TailCollision(apple.x, apple.y) || (snake.x == apple.x && snake.y == apple.y));
 }
@@ -376,16 +402,16 @@ int8_t Snake_TailCollision(int8_t col_with_x, int8_t  col_with_y) {
 }
 
 int8_t CheckInput(int8_t def) {
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
         return NORTH;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)) {
+    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
         return EAST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)) {
+    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
         return WEST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
+    else if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
         return SOUTH;
     }
     else {
