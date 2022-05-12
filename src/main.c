@@ -58,6 +58,41 @@ int main(void) {
     HAL_TIM_Base_Start(&tim2);
     __HAL_TIM_SET_COUNTER(&tim2, 0);
 
+    __HAL_RCC_TIM1_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpio;
+    gpio.Mode = GPIO_MODE_AF_PP;
+    gpio.Pin = GPIO_PIN_8;
+    gpio.Pull = GPIO_NOPULL;
+    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    tim1.Instance = TIM1;
+    tim1.Init.Period = 1000 - 1;
+    tim1.Init.Prescaler = 1280 - 1;
+    tim1.Init.ClockDivision = 0;
+    tim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+    tim1.Init.RepetitionCounter = 0;
+    tim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    HAL_TIM_PWM_Init(&tim1);
+
+    TIM_OC_InitTypeDef oc;
+    oc.OCMode = TIM_OCMODE_PWM1;
+    oc.Pulse = 400;
+    oc.OCPolarity = TIM_OCPOLARITY_HIGH;
+    oc.OCNPolarity = TIM_OCNPOLARITY_LOW;
+    oc.OCFastMode = TIM_OCFAST_ENABLE;
+    oc.OCIdleState = TIM_OCIDLESTATE_SET;
+    oc.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    HAL_TIM_PWM_ConfigChannel(&tim1, &oc, TIM_CHANNEL_1);
+
+    HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
+    int counter = 0;
+    while(1) {
+        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, counter % 400);
+        HAL_Delay(5);
+        counter++;
+    }
     GameEngineLoop();
 
 }
