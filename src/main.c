@@ -42,14 +42,49 @@ int main(void) {
     ST7735_Init();
     ST7735_FillScreen(ST7735_BLUE);
 
-    tim1.Instance = TIM1;
-    tim1.Init.Period = 999;
-    tim1.Init.Prescaler = 127;
-    tim1.Init.ClockDivision = 0;
-    tim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    tim1.Init.RepetitionCounter = 0;
-    tim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    __HAL_RCC_ADC1_CLK_ENABLE();
 
+    GPIO_InitTypeDef gpio;
+    gpio.Mode = GPIO_MODE_AF_PP;
+    gpio.Pin = GPIO_PIN_2;
+    gpio.Pull = GPIO_NOPULL;
+    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    gpio.Mode = GPIO_MODE_AF_INPUT;
+    gpio.Pin = GPIO_PIN_3;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    RCC_PeriphCLKInitTypeDef adc_clk;
+    adc_clk.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+    adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV2;
+    HAL_RCCEx_PeriphCLKConfig(&adc_clk);
+
+    ADC_HandleTypeDef adc;
+    adc.Instance = ADC1;
+    adc.Init.ContinuousConvMode = ENABLE;
+    adc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    adc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    adc.Init.ScanConvMode = ADC_SCAN_DISABLE;
+    adc.Init.NbrOfConversion = 1;
+    adc.Init.DiscontinuousConvMode = DISABLE;
+    adc.Init.NbrOfDiscConversion = 1;
+    HAL_ADC_Init(&adc);
+
+    HAL_ADCEx_Calibration_Start(&adc);
+
+    ADC_ChannelConfTypeDef adc_ch;
+    adc_ch.Channel = ADC_CHANNEL_VREFINT;
+    adc_ch.Rank = ADC_REGULAR_RANK_1;
+    adc_ch.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
+    HAL_ADC_ConfigChannel(&adc, &adc_ch);
+
+    HAL_ADC_Start(&adc);
+    while (1)
+    {
+        uint32_t value = HAL_ADC_GetValue(&adc);
+        printf("Adc = %ld (%.3fV)\r\n", value, value * 3.3f / 4096.0f);
+    }
 
     DS18B20_Init();
     char tempText[10];
