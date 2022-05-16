@@ -152,7 +152,7 @@ void SPI_INIT() {
     spi.Init.Mode = SPI_MODE_MASTER;
     spi.Init.NSS = SPI_NSS_SOFT;
     spi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-    spi.Init.Direction = SPI_DIRECTION_2LINES;
+    spi.Init.Direction = SPI_DIRECTION_1LINE;
     spi.Init.CLKPhase = SPI_PHASE_1EDGE;
     spi.Init.CLKPolarity = SPI_POLARITY_LOW;
     spi.Init.DataSize = SPI_DATASIZE_8BIT;
