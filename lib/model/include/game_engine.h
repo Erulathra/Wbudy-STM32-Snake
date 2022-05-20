@@ -69,6 +69,7 @@ int8_t Snake_TailCollision(int8_t, int8_t);
 
 int8_t CheckInput(int8_t);
 
+void ChangeBrightness(uint8_t brightness);
 
 
 
