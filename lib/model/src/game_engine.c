@@ -83,8 +83,7 @@ void Mode_Temperature() {
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
 
-        //TODO: Zacznij znowu po wciśnięciu przycisku
-        if (frameCount == 60)
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1))
             return;
     }
 }
@@ -119,8 +118,10 @@ void Mode_GameOver() {
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
 
-        //TODO: Zacznij znowu po wciśnięciu przycisku
-        if (frameCount == 60)
+        if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) ||
+        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) ||
+        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) ||
+        !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
             return;
     }
 }
