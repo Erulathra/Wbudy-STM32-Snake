@@ -8,6 +8,7 @@
 #include "DS18B20.h"
 #include "ftoa.h"
 
+extern TIM_HandleTypeDef tim1;
 extern TIM_HandleTypeDef tim2;
 
 
@@ -20,24 +21,22 @@ _Noreturn void GameEngineLoop() {
     snake.direction = STARTING_DIRECTION_SNAKE;
     snake.tailLength = STARTING_TAIL_LENGTH;
 
-    Snake_PutAppleOnBoard(frameCount);
+    Snake_PutAppleOnBoard();
 
     for (;;) {
-        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
-            Mode_Temperature();
-        }
-        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
-            ChangeBrightness(1);
-        }
-        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)) {
-            ChangeBrightness(0);
-        }
-        else if (Snake_GameOver() == TRUE) {
+//        uint8_t i = 0;
+//        i++;
+//        tim1.Init.Prescaler = i;
+
+        CheckInput(-1);
+
+        if (Snake_GameOver() == TRUE) {
             Mode_GameOver();
         }
-        else {
+        else{
             Mode_Snake(frameCount);
         }
+
 
         lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
         if (lastFrameDuration < 16) {
@@ -51,9 +50,13 @@ _Noreturn void GameEngineLoop() {
 void ChangeBrightness(uint8_t brightness) {
     if(brightness > 0) {
         //TODO: Increase brightness of the screen
+//        tim1.Init.Prescaler = 9999;
+        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, 0);
     }
     else {
         //TODO: Decrease brightness of the screen
+//        tim1.Init.Prescaler = 999;
+        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, 900);
     }
 }
 
@@ -118,10 +121,7 @@ void Mode_GameOver() {
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
 
-        if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) ||
-        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) ||
-        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) ||
-        !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
+        if (CheckInput(-1) != -1)
             return;
     }
 }
@@ -346,7 +346,7 @@ void Snake_DrawSnakeTail() {
     }
 }
 
-void Snake_PutAppleOnBoard(uint8_t thingForSeed) {
+void Snake_PutAppleOnBoard() {
     DS18B20_Init();
     do{
         apple.x = rand() % BOARD_SIZE;
@@ -421,17 +421,25 @@ int8_t CheckInput(int8_t def) {
     if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
         return NORTH;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
         return EAST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
         return WEST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
+    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
         return SOUTH;
     }
-    else {
-        return def;
+    if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
+        Mode_Temperature();
     }
+    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
+        ChangeBrightness(1);
+    }
+    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)) {
+        ChangeBrightness(0);
+    }
+
+    return def;
 }
 

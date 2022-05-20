@@ -44,7 +44,7 @@ int main(void) {
 
     tim1.Instance = TIM1;
     tim1.Init.Period = 999;
-    tim1.Init.Prescaler = 127;
+    tim1.Init.Prescaler = 127999;
     tim1.Init.ClockDivision = 0;
     tim1.Init.CounterMode = TIM_COUNTERMODE_UP;
     tim1.Init.RepetitionCounter = 0;
@@ -59,5 +59,4 @@ int main(void) {
     __HAL_TIM_SET_COUNTER(&tim2, 0);
 
     GameEngineLoop();
-
 }

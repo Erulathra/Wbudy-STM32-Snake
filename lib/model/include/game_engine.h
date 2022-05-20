@@ -55,7 +55,7 @@ void Snake_RemoveLastPart();
 
 void Snake_DrawSnakeTail();
 
-void Snake_PutAppleOnBoard(uint8_t);
+void Snake_PutAppleOnBoard();
 
 void Snake_DrawApple();
 
