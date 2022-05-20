@@ -42,48 +42,39 @@ int main(void) {
     ST7735_Init();
     ST7735_FillScreen(ST7735_BLUE);
 
-    __HAL_RCC_ADC1_CLK_ENABLE();
-
+    __HAL_RCC_TIM1_CLK_ENABLE();
+    //wywalone
     GPIO_InitTypeDef gpio;
     gpio.Mode = GPIO_MODE_AF_PP;
-    gpio.Pin = GPIO_PIN_2;
+    gpio.Pin = GPIO_PIN_8;
     gpio.Pull = GPIO_NOPULL;
-    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &gpio);
+    //wywalone
+    tim1.Instance = TIM1;
+    tim1.Init.Period = 1000 - 1;
+    tim1.Init.Prescaler = 640 - 1;
+    tim1.Init.ClockDivision = 0;
+    tim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+    tim1.Init.RepetitionCounter = 0;
+    tim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    HAL_TIM_PWM_Init(&tim1); // ustawienie że timer będzie działał w PWN
+    // nie wywalone
+    TIM_OC_InitTypeDef oc;
+    oc.OCMode = TIM_OCMODE_PWM1;
+    oc.Pulse = 1000;
+    oc.OCPolarity = TIM_OCPOLARITY_HIGH;
+    oc.OCNPolarity = TIM_OCNPOLARITY_LOW;
+    oc.OCFastMode = TIM_OCFAST_ENABLE;
+    oc.OCIdleState = TIM_OCIDLESTATE_SET;
+    oc.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    HAL_TIM_PWM_ConfigChannel(&tim1, &oc, TIM_CHANNEL_1);
 
-    gpio.Mode = GPIO_MODE_AF_INPUT;
-    gpio.Pin = GPIO_PIN_3;
-    HAL_GPIO_Init(GPIOA, &gpio);
+    HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
 
-    RCC_PeriphCLKInitTypeDef adc_clk;
-    adc_clk.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-    adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV2;
-    HAL_RCCEx_PeriphCLKConfig(&adc_clk);
 
-    ADC_HandleTypeDef adc;
-    adc.Instance = ADC1;
-    adc.Init.ContinuousConvMode = ENABLE;
-    adc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-    adc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-    adc.Init.ScanConvMode = ADC_SCAN_DISABLE;
-    adc.Init.NbrOfConversion = 1;
-    adc.Init.DiscontinuousConvMode = DISABLE;
-    adc.Init.NbrOfDiscConversion = 1;
-    HAL_ADC_Init(&adc);
 
-    HAL_ADCEx_Calibration_Start(&adc);
-
-    ADC_ChannelConfTypeDef adc_ch;
-    adc_ch.Channel = ADC_CHANNEL_VREFINT;
-    adc_ch.Rank = ADC_REGULAR_RANK_1;
-    adc_ch.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
-    HAL_ADC_ConfigChannel(&adc, &adc_ch);
-
-    HAL_ADC_Start(&adc);
-    while (1)
-    {
-        uint32_t value = HAL_ADC_GetValue(&adc);
-        printf("Adc = %ld (%.3fV)\r\n", value, value * 3.3f / 4096.0f);
+    while (1) {
     }
 
     DS18B20_Init();
