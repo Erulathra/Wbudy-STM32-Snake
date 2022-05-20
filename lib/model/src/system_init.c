@@ -92,6 +92,24 @@ void GPIO_INIT() {
     gpio.Mode = GPIO_MODE_INPUT;
     gpio.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &gpio);
+
+    //Button Temperature setup - PB1
+    gpio.Pin = GPIO_PIN_1;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &gpio);
+
+    //Button Brightness- setup - PA4
+    gpio.Pin = GPIO_PIN_4;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio);
+
+    //Button Brightness+ setup - PA6
+    gpio.Pin = GPIO_PIN_6;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &gpio);
 }
 
 void SystemClock_Config72(void) {

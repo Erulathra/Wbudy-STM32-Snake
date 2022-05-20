@@ -23,8 +23,14 @@ _Noreturn void GameEngineLoop() {
     Snake_PutAppleOnBoard(frameCount);
 
     for (;;) {
-        if ( FALSE && !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
+        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
             Mode_Temperature();
+        }
+        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
+            ChangeBrightness(1);
+        }
+        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)) {
+            ChangeBrightness(0);
         }
         else if (Snake_GameOver() == TRUE) {
             Mode_GameOver();
@@ -39,6 +45,15 @@ _Noreturn void GameEngineLoop() {
         }
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
+    }
+}
+
+void ChangeBrightness(uint8_t brightness) {
+    if(brightness > 0) {
+        //TODO: Increase brightness of the screen
+    }
+    else {
+        //TODO: Decrease brightness of the screen
     }
 }
 
