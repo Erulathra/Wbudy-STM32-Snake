@@ -87,29 +87,29 @@ int main(void) {
 
     HAL_ADCEx_Calibration_Start(&adc);
 
-    while(1){
-        for(uint16_t i = 100; i <= 1000; i+=100){
-            HAL_ADC_Start(&adc);
-            HAL_ADC_PollForConversion(&adc, 10);
+//    while(1){
+//        for(uint16_t i = 100; i <= 1000; i+=100){
+//            HAL_ADC_Start(&adc);
+//            HAL_ADC_PollForConversion(&adc, 10);
+//
+//            uint32_t value = HAL_ADC_GetValue(&adc);
+//
+//            HAL_Delay(250);
+//
+//            uint16_t val_2 = abs(value - 2400) * 2;
+//
+//            __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, val_2);
+//        }
+//    }
 
-            uint32_t value = HAL_ADC_GetValue(&adc);
 
-            HAL_Delay(250);
+    DS18B20_Init();
+    char tempText[10];
+    double temp = ReadTemp();
+    srand(temp);
+    HAL_TIM_Base_Start(&tim2);
+    __HAL_TIM_SET_COUNTER(&tim2, 0);
 
-            uint16_t val_2 = abs(value - 2400) * 2;
-
-            __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, val_2);
-        }
-    }
-
-
-//    DS18B20_Init();
-//    char tempText[10];
-//    double temp = ReadTemp();
-//    srand(temp);
-//    HAL_TIM_Base_Start(&tim2);
-//    __HAL_TIM_SET_COUNTER(&tim2, 0);
-
-    //GameEngineLoop();
+    GameEngineLoop();
 
 }

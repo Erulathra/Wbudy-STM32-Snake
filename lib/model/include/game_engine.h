@@ -55,11 +55,11 @@ void Snake_RemoveLastPart();
 
 void Snake_DrawSnakeTail();
 
-void Snake_PutAppleOnBoard(uint8_t);
+void Snake_PutAppleOnBoard();
 
 void Snake_DrawApple();
 
-void Snake_CanSnakeEatApple(uint8_t);
+void Snake_CanSnakeEatApple();
 
 uint8_t CheckBit(uint8_t bit, uint8_t byte);
 
@@ -67,9 +67,10 @@ int8_t Snake_GameOver();
 
 int8_t Snake_TailCollision(int8_t, int8_t);
 
-int8_t CheckInput(int8_t);
+int8_t CheckMovementButtons();
 
-void ChangeBrightness(uint8_t brightness);
+int8_t CheckAllButtons();
+
 
 
 
