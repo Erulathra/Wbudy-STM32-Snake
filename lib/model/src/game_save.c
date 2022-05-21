@@ -3,7 +3,6 @@
 //
 
 #include "game_save.h"
-#include "game_engine.h"
 
 void save_game(Snake &savedSnake, Apple &savedApple, uint8_t *savedTail[16])
 {
