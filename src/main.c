@@ -18,6 +18,7 @@ DMA_HandleTypeDef dma3;
 TIM_HandleTypeDef tim1;
 TIM_HandleTypeDef tim2;
 TIM_HandleTypeDef tim3;
+ADC_HandleTypeDef adc;
 
 void GameLoop();
 
@@ -74,7 +75,7 @@ int main(void) {
 
     __HAL_RCC_ADC1_CLK_ENABLE();
 
-    ADC_HandleTypeDef adc;
+    //ADC_HandleTypeDef adc;
     adc.Instance = ADC1;
     adc.Init.ContinuousConvMode = ENABLE;
     adc.Init.ExternalTrigConv = ADC_SOFTWARE_START;

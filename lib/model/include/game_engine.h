@@ -19,7 +19,8 @@
 #define STARTING_DIRECTION_SNAKE 2
 #define STARTING_TAIL_LENGTH 2
 
-#define GAME_SPEED 30
+#define MAX_GAME_SPEED 1
+#define MIN_GAME_SPEED 90
 
 struct Snake {
     uint8_t x;
@@ -44,6 +45,8 @@ void Mode_Temperature();
 void Mode_GameOver();
 
 void Mode_Snake(uint64_t);
+
+uint8_t Snake_Change_Speed();
 
 void Snake_MoveSnake();
 

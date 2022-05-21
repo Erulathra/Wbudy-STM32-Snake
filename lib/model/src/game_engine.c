@@ -10,7 +10,9 @@
 
 extern TIM_HandleTypeDef tim1;
 extern TIM_HandleTypeDef tim2;
+extern ADC_HandleTypeDef adc;
 
+int16_t gameSpeed = 90;
 
 _Noreturn void GameEngineLoop() {
     uint64_t frameCount = 0;
@@ -111,7 +113,10 @@ void Mode_GameOver() {
 void Mode_Snake(uint64_t frameCount) {
     snake.direction = CheckMovementButtons();
 
-    if (!(frameCount % GAME_SPEED)) {
+    if (!(frameCount % 100))
+        gameSpeed = Snake_Change_Speed();
+
+    if (!(frameCount % gameSpeed)) {
         Snake_MoveSnake();
         Snake_MoveTail();
         Snake_CanSnakeEatApple(frameCount);
@@ -128,6 +133,20 @@ void Mode_Snake(uint64_t frameCount) {
 
         ST7735_DrawBuffer(bufferIndex);
     }
+}
+
+uint8_t Snake_Change_Speed(){
+    HAL_ADC_Start(&adc);
+    HAL_ADC_PollForConversion(&adc, 10);
+
+    uint8_t speed = (HAL_ADC_GetValue(&adc) - 2700) * (MIN_GAME_SPEED - MAX_GAME_SPEED) / (4000 - 2700) + MAX_GAME_SPEED;
+
+    if (speed < MAX_GAME_SPEED)
+        return MAX_GAME_SPEED;
+    else if (speed > MIN_GAME_SPEED)
+        return MIN_GAME_SPEED;
+
+    return speed;
 }
 
 void Snake_MoveSnake() {
