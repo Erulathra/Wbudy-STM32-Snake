@@ -5,7 +5,7 @@
 #ifndef WBUDY_STM32_SNAKE_GAME_SAVE_H
 #define WBUDY_STM32_SNAKE_GAME_SAVE_H
 
-#define HALF_WORD_LENGTH (uint32_t) 0x00000010
+#define HALF_WORD_LENGTH (uint32_t) 0x00000002
 
 #include "game_engine.h"
 #include "eeprom.h"
