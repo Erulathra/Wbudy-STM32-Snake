@@ -37,8 +37,9 @@ struct Apple {
 
 uint8_t tail[16];
 
-
 _Noreturn void GameEngineLoop();
+
+void Mode_Menu();
 
 void Mode_Temperature();
 

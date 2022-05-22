@@ -26,14 +26,59 @@ _Noreturn void GameEngineLoop() {
     Snake_PutAppleOnBoard();
 
     for (;;) {
-
-        CheckAllButtons();
+        if(CheckAllButtons() == 4)
+            Mode_Menu();
 
         if (Snake_GameOver() == TRUE)
             Mode_GameOver();
         else
             Mode_Snake(frameCount);
 
+
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
+        if (lastFrameDuration < 16) {
+            HAL_Delay(16 - lastFrameDuration);
+        }
+        __HAL_TIM_SET_COUNTER(&tim2, 0);
+        frameCount++;
+    }
+}
+
+void Mode_Menu() {
+    uint64_t frameCount = 0;
+    uint8_t lastFrameDuration = 0;
+
+    HAL_Delay(200);
+    for (;;) {
+        int8_t input = CheckAllButtons();
+
+        if (input == 4) {
+            HAL_Delay(200);
+            return;     // Go back
+        }
+        if (input == NORTH) {
+            HAL_Delay(200);
+            return;     // save game
+        }
+        if (input == SOUTH) {
+            HAL_Delay(200);
+            return;     // load game
+        }
+        if (input == WEST) {
+            Mode_Temperature();     // temp
+            HAL_Delay(200);
+        }
+        if (input == EAST) {
+            return;     // funny cat <3
+        }
+
+        for (int j = 0; j < BUFFER_COUNT; ++j) {
+            bufferIndex = j;
+            FillBufferWithColor(ST7735_BLACK);
+            DrawImageIntroBuffer(32, 32, 48, 48, epd_bitmap_allArray[(frameCount / 6) % 7]);
+
+            ST7735_DrawBuffer(bufferIndex);
+        }
 
         lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
         if (lastFrameDuration < 16) {
@@ -435,6 +480,9 @@ int8_t CheckMovementButtons() {
 }
 
 int8_t CheckAllButtons() {
+    if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
+        return 4; // menu
+    }
     if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
         return NORTH;
     }
@@ -446,11 +494,6 @@ int8_t CheckAllButtons() {
     }
     if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
         return SOUTH;
-    }
-    if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
-        HAL_Delay(100);
-        Mode_Temperature(); //TODO zmien na wejscie do menu
-        HAL_Delay(100);
     }
     if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) < 1000) {
         __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) + 50);
