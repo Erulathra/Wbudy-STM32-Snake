@@ -8,8 +8,11 @@
 #include "DS18B20.h"
 #include "ftoa.h"
 
+extern TIM_HandleTypeDef tim1;
 extern TIM_HandleTypeDef tim2;
+extern ADC_HandleTypeDef adc;
 
+int16_t gameSpeed = 90;
 
 _Noreturn void GameEngineLoop() {
     uint64_t frameCount = 0;
@@ -20,24 +23,17 @@ _Noreturn void GameEngineLoop() {
     snake.direction = STARTING_DIRECTION_SNAKE;
     snake.tailLength = STARTING_TAIL_LENGTH;
 
-    Snake_PutAppleOnBoard(frameCount);
+    Snake_PutAppleOnBoard();
 
     for (;;) {
-        if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
-            Mode_Temperature();
-        }
-        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4)) {
-            ChangeBrightness(1);
-        }
-        else if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)) {
-            ChangeBrightness(0);
-        }
-        else if (Snake_GameOver() == TRUE) {
+        if(CheckAllButtons() == 4)
+            Mode_Menu();
+
+        if (Snake_GameOver() == TRUE)
             Mode_GameOver();
-        }
-        else {
+        else
             Mode_Snake(frameCount);
-        }
+
 
         lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
         if (lastFrameDuration < 16) {
@@ -48,12 +44,48 @@ _Noreturn void GameEngineLoop() {
     }
 }
 
-void ChangeBrightness(uint8_t brightness) {
-    if(brightness > 0) {
-        //TODO: Increase brightness of the screen
-    }
-    else {
-        //TODO: Decrease brightness of the screen
+void Mode_Menu() {
+    uint64_t frameCount = 0;
+    uint8_t lastFrameDuration = 0;
+
+    HAL_Delay(200);
+    for (;;) {
+        int8_t input = CheckAllButtons();
+
+        if (input == 4) {
+            HAL_Delay(200);
+            return;     // Go back
+        }
+        if (input == NORTH) {
+            HAL_Delay(200);
+            return;     // save game
+        }
+        if (input == SOUTH) {
+            HAL_Delay(200);
+            return;     // load game
+        }
+        if (input == WEST) {
+            Mode_Temperature();     // temp
+            HAL_Delay(200);
+        }
+        if (input == EAST) {
+            return;     // funny cat <3
+        }
+
+        for (int j = 0; j < BUFFER_COUNT; ++j) {
+            bufferIndex = j;
+            FillBufferWithColor(ST7735_BLACK);
+            DrawImageIntroBuffer(32, 32, 48, 48, epd_bitmap_allArray[(frameCount / 6) % 7]);
+
+            ST7735_DrawBuffer(bufferIndex);
+        }
+
+        lastFrameDuration = __HAL_TIM_GET_COUNTER(&tim2) / 10;
+        if (lastFrameDuration < 16) {
+            HAL_Delay(16 - lastFrameDuration);
+        }
+        __HAL_TIM_SET_COUNTER(&tim2, 0);
+        frameCount++;
     }
 }
 
@@ -118,18 +150,18 @@ void Mode_GameOver() {
         __HAL_TIM_SET_COUNTER(&tim2, 0);
         frameCount++;
 
-        if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) ||
-        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) ||
-        !HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) ||
-        !HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0))
+        if (CheckAllButtons() != -1)
             return;
     }
 }
 
 void Mode_Snake(uint64_t frameCount) {
-    snake.direction = CheckInput(snake.direction);
+    snake.direction = CheckMovementButtons();
 
-    if (!(frameCount % GAME_SPEED)) {
+    if (!(frameCount % 100))
+        gameSpeed = Snake_Change_Speed();
+
+    if (!(frameCount % gameSpeed)) {
         Snake_MoveSnake();
         Snake_MoveTail();
         Snake_CanSnakeEatApple(frameCount);
@@ -146,6 +178,20 @@ void Mode_Snake(uint64_t frameCount) {
 
         ST7735_DrawBuffer(bufferIndex);
     }
+}
+
+uint8_t Snake_Change_Speed(){
+    HAL_ADC_Start(&adc);
+    HAL_ADC_PollForConversion(&adc, 10);
+
+    uint8_t speed = (HAL_ADC_GetValue(&adc) - 2700) * (MIN_GAME_SPEED - MAX_GAME_SPEED) / (4000 - 2700) + MAX_GAME_SPEED;
+
+    if (speed < MAX_GAME_SPEED)
+        return MAX_GAME_SPEED;
+    else if (speed > MIN_GAME_SPEED)
+        return MIN_GAME_SPEED;
+
+    return speed;
 }
 
 void Snake_MoveSnake() {
@@ -233,7 +279,7 @@ void Snake_DrawSnakeHead() {
                                       snake_head_vertical_horizontal, NORMAL, NORMAL);
             else
                 DrawSpriteIntroBuffer(snake.x * SEGMENT_SIZE, snake.y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                  sprite_snake_head_vertical, NORMAL, NORMAL);
+                                      sprite_snake_head_vertical, NORMAL, NORMAL);
             break;
         case WEST:
             if(NORTH == CheckBit( 6, tail[0]) >> 6)
@@ -281,7 +327,7 @@ void Snake_DrawSnakeTail() {
                                           snakeTailVertical, NORMAL, NORMAL);
                 else
                     DrawSpriteIntroBuffer(pos_x * SEGMENT_SIZE, pos_y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                      sprite_snakeVertical, NORMAL, NORMAL);
+                                          sprite_snakeVertical, NORMAL, NORMAL);
 
 
                 break;
@@ -302,7 +348,7 @@ void Snake_DrawSnakeTail() {
                                           snakeTailHorizontal, FLIPPED, NORMAL);
                 else
                     DrawSpriteIntroBuffer(pos_x * SEGMENT_SIZE, pos_y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                      sprite_snakeHorizontal, NORMAL, NORMAL);
+                                          sprite_snakeHorizontal, NORMAL, NORMAL);
                 break;
             case SOUTH:
                 pos_y += 1;
@@ -321,7 +367,7 @@ void Snake_DrawSnakeTail() {
                                           snakeTailVertical, NORMAL, FLIPPED);
                 else
                     DrawSpriteIntroBuffer(pos_x * SEGMENT_SIZE, pos_y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                      sprite_snakeVertical, NORMAL, NORMAL);
+                                          sprite_snakeVertical, NORMAL, NORMAL);
                 break;
             case WEST:
                 pos_x -= 1;
@@ -340,13 +386,13 @@ void Snake_DrawSnakeTail() {
                                           snakeTailHorizontal, NORMAL, FLIPPED);
                 else
                     DrawSpriteIntroBuffer(pos_x * SEGMENT_SIZE, pos_y * SEGMENT_SIZE, SEGMENT_SIZE, SEGMENT_SIZE,
-                                            sprite_snakeHorizontal, NORMAL, NORMAL);
+                                          sprite_snakeHorizontal, NORMAL, NORMAL);
                 break;
         }
     }
 }
 
-void Snake_PutAppleOnBoard(uint8_t thingForSeed) {
+void Snake_PutAppleOnBoard() {
     DS18B20_Init();
     do{
         apple.x = rand() % BOARD_SIZE;
@@ -359,7 +405,7 @@ void Snake_DrawApple() {
                           sprite_apple, FLIPPED, NORMAL);
 }
 
-void Snake_CanSnakeEatApple(uint8_t frameCount) {
+void Snake_CanSnakeEatApple() {
     if (snake.x == apple.x && snake.y == apple.y) {
         apple.eaten = TRUE;
 
@@ -368,7 +414,7 @@ void Snake_CanSnakeEatApple(uint8_t frameCount) {
         else
             Snake_GameOver();
 
-        Snake_PutAppleOnBoard(frameCount);
+        Snake_PutAppleOnBoard();
         return;
     }
     apple.eaten = FALSE;
@@ -417,21 +463,46 @@ int8_t Snake_TailCollision(int8_t col_with_x, int8_t  col_with_y) {
     return FALSE;
 }
 
-int8_t CheckInput(int8_t def) {
+int8_t CheckMovementButtons() {
     if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
         return NORTH;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
         return EAST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
         return WEST;
     }
-    else if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
+    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
         return SOUTH;
     }
-    else {
-        return def;
+    return snake.direction;
+}
+
+int8_t CheckAllButtons() {
+    if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
+        return 4; // menu
     }
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
+        return NORTH;
+    }
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
+        return EAST;
+    }
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
+        return WEST;
+    }
+    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
+        return SOUTH;
+    }
+    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) < 1000) {
+        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) + 50);
+        HAL_Delay(50);
+    }
+    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) >= 100) {
+        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) - 50);
+        HAL_Delay(50);
+    }
+    return -1;
 }
 

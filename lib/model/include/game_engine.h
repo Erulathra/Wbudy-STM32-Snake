@@ -19,7 +19,8 @@
 #define STARTING_DIRECTION_SNAKE 2
 #define STARTING_TAIL_LENGTH 2
 
-#define GAME_SPEED 30
+#define MAX_GAME_SPEED 1
+#define MIN_GAME_SPEED 90
 
 struct Snake {
     uint8_t x;
@@ -36,14 +37,17 @@ struct Apple {
 
 uint8_t tail[16];
 
-
 _Noreturn void GameEngineLoop();
+
+void Mode_Menu();
 
 void Mode_Temperature();
 
 void Mode_GameOver();
 
 void Mode_Snake(uint64_t);
+
+uint8_t Snake_Change_Speed();
 
 void Snake_MoveSnake();
 
@@ -55,11 +59,11 @@ void Snake_RemoveLastPart();
 
 void Snake_DrawSnakeTail();
 
-void Snake_PutAppleOnBoard(uint8_t);
+void Snake_PutAppleOnBoard();
 
 void Snake_DrawApple();
 
-void Snake_CanSnakeEatApple(uint8_t);
+void Snake_CanSnakeEatApple();
 
 uint8_t CheckBit(uint8_t bit, uint8_t byte);
 
@@ -67,9 +71,10 @@ int8_t Snake_GameOver();
 
 int8_t Snake_TailCollision(int8_t, int8_t);
 
-int8_t CheckInput(int8_t);
+int8_t CheckMovementButtons();
 
-void ChangeBrightness(uint8_t brightness);
+int8_t CheckAllButtons();
+
 
 
 
