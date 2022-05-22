@@ -483,16 +483,16 @@ int8_t CheckAllButtons() {
     if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
         return 4; // menu
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
         return NORTH;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)) {
         return EAST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
+    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)) {
         return WEST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
+    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
         return SOUTH;
     }
     if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) < 1000) {
