@@ -10,20 +10,17 @@
 //      uint8_t one = xxxxxxxx(b);
 //      uint8_t two = yyyyyyyy(b);
 // outputs:
-//      uint16_t one_two = xxxxxxxxyyyyyy(b);
+//      uint16_t one_two = xxxxxxxxyyyyyyyy(b);
 // (in memory view values appear flipped, but while reading they are correct)
 #define combine_uint_16t(x, y) ((x << 8) | y)
 // Provides mask of given size for reading from combined value.
 // How it works:
-//      res = 1 >> 8 (100000000(b))
-//      res - 1 = 11111111(b)
+//      res = 1 << 8 (100000000(b))
+//      res -= 1     ( 11111111(b))
 #define mask(x) ((1 << x) - 1)
 
 void save_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail)
 {
-    //Snake = 4 words
-    //Apple = 3 words
-    //tail = 16 words
     uint32_t currentAddress = 0;
     uint8_t checksum = 0;
 
