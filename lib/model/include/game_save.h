@@ -8,7 +8,7 @@
 #define HALF_WORD_LENGTH (uint32_t) 0x00000002
 
 #include "game_engine.h"
-#include "eeprom.h"
+#include "flash.h"
 
 void save_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail);
 uint8_t load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail);

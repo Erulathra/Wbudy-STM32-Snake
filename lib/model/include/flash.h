@@ -2,8 +2,8 @@
 // Created by masterktos on 12.05.22.
 //
 
-#ifndef WBUDY_STM32_SNAKE_EEPROM_H
-#define WBUDY_STM32_SNAKE_EEPROM_H
+#ifndef WBUDY_STM32_SNAKE_FLASH_H
+#define WBUDY_STM32_SNAKE_FLASH_H
 
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal_flash_ex.h"
@@ -14,8 +14,9 @@
 
 void FLASH_PageErase(uint32_t PageAddress);
 
-void enableEEPROMWriting(); // Unlock and keep PER cleared
-void disableEEPROMWriting(); // Lock
+// Setup functions
+void enableEEPROMWriting();
+void disableEEPROMWriting();
 
 // Write functions
 HAL_StatusTypeDef writeEEPROMHalfWord(uint32_t address, uint16_t data);
@@ -25,4 +26,4 @@ HAL_StatusTypeDef writeEEPROMWord(uint32_t address, uint32_t data);
 uint16_t readEEPROMHalfWord(uint32_t address);
 uint32_t readEEPROMWord(uint32_t address);
 
-#endif //WBUDY_STM32_SNAKE_EEPROM_H
+#endif //WBUDY_STM32_SNAKE_FLASH_H
