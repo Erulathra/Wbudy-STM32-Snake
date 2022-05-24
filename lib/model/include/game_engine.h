@@ -7,6 +7,7 @@
 #define EAST 1
 #define SOUTH 2
 #define WEST 3
+#define MENU 4
 
 #define TRUE 1
 #define FALSE 0
