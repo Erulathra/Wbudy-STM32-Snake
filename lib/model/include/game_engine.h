@@ -23,6 +23,12 @@
 #define MAX_GAME_SPEED 1
 #define MIN_GAME_SPEED 90
 
+#define BRIGHTNESS_MIN 1000
+#define BRIGHTNESS_MAX 100
+#define BRIGHTNESS_STEP 50
+#define GET_SCREEN_BRIGHTNESS() __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1)
+#define CHANGE_SCREEN_BRIGHTNESS(value) __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, GET_SCREEN_BRIGHTNESS() + value);
+
 struct Snake {
     uint8_t x;
     uint8_t y;
@@ -33,7 +39,6 @@ struct Snake {
 struct Apple {
     uint8_t x;
     uint8_t y;
-    uint8_t eaten;
 } apple;
 
 uint8_t tail[16];

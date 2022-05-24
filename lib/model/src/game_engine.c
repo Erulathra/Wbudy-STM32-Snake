@@ -53,7 +53,7 @@ void Mode_Menu() {
     for (;;) {
         int8_t input = CheckAllButtons();
 
-        if (input == 4) {
+        if (input == MENU) {
             HAL_Delay(200);
             return;     // Go back
         }
@@ -408,7 +408,6 @@ void Snake_DrawApple() {
 
 void Snake_CanSnakeEatApple() {
     if (snake.x == apple.x && snake.y == apple.y) {
-        apple.eaten = TRUE;
 
         if (snake.tailLength < 63)
             snake.tailLength++;
@@ -418,7 +417,6 @@ void Snake_CanSnakeEatApple() {
         Snake_PutAppleOnBoard();
         return;
     }
-    apple.eaten = FALSE;
 }
 
 uint8_t CheckBit(uint8_t bit, uint8_t byte) {
@@ -496,12 +494,12 @@ int8_t CheckAllButtons() {
     if(CHECK_INPUT_SOUTH() && snake.direction != NORTH) {
         return SOUTH;
     }
-    if (CHECK_INPUT_BRIGHT() && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) < 1000) {
-        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) + 50);
+    if (CHECK_INPUT_BRIGHT() && GET_SCREEN_BRIGHTNESS() < BRIGHTNESS_MAX) {
+        CHANGE_SCREEN_BRIGHTNESS(BRIGHTNESS_STEP);
         HAL_Delay(50);
     }
-    if (CHECK_INPUT_DARK() && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) >= 100) {
-        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) - 50);
+    if (CHECK_INPUT_DARK() && GET_SCREEN_BRIGHTNESS() >= BRIGHTNESS_MIN) {
+        CHANGE_SCREEN_BRIGHTNESS(-BRIGHTNESS_STEP);
         HAL_Delay(50);
     }
     return -1;
