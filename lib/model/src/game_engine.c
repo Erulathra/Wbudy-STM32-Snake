@@ -8,6 +8,7 @@
 #include "DS18B20.h"
 #include "ftoa.h"
 #include "buttons.h"
+#include "game_save.h"
 
 extern TIM_HandleTypeDef tim1;
 extern TIM_HandleTypeDef tim2;
@@ -59,11 +60,11 @@ void Mode_Menu() {
         }
         if (input == NORTH) {
             HAL_Delay(200);
-            return;     // save game
+            save_game(&snake, &apple, tail);    // save game
         }
         if (input == SOUTH) {
             HAL_Delay(200);
-            return;     // load game
+            load_game(&snake, &apple, tail);    // load game
         }
         if (input == WEST) {
             Mode_Temperature();     // temp
