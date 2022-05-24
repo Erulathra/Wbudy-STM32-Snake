@@ -92,11 +92,14 @@ void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *save
 
     // calculate checksum
     checksum += ones(snake_x_y) + ones(snake_dir_len) + ones(apple_x_y);
-    for(uint8_t i = 0; i < TAIL_SIZE; i+=2, savedTail++) {
+    uint8_t currentAddressTemp = currentAddress;
+    for(uint8_t i = 0; i < TAIL_SIZE; i+=2) {
         uint16_t two_segments = readEEPROMHalfWord(currentAddress);
         checksum += ones(two_segments);
         currentAddress += HALF_WORD_LENGTH;
     }
+    //return to previous value
+    currentAddress = currentAddressTemp;
 
     //if checksum is incorrect, erase save and return
     if(do_checksum(checksum, readEEPROMHalfWord(currentAddress)) == 0) {
@@ -119,8 +122,6 @@ void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *save
     savedApple->y = apple_x_y & mask(8);
 
     // read Tail
-    // move back currentAddress (previously moved for checksum)
-    currentAddress -= HALF_WORD_LENGTH * (TAIL_SIZE/2 - 1);
     for(uint8_t i = 0; i < TAIL_SIZE; i+=2, savedTail++) {
         uint16_t two_segments = readEEPROMHalfWord(currentAddress);
         *savedTail = (uint16_t) (two_segments >> 8);
