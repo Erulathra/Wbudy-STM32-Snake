@@ -7,12 +7,12 @@
 
 /** @brief  Enables flash write
   * @attention Call this before doing write operations
-  * @details Enables flash write via HAL, erases page (sets every bit to 1)
-  * and clears PER bit (PER bit, when set, states that flash is in Page Erase mode)
+  * @details Enables flash write via \b HAL, erases page (sets every bit to 1) and \n
+  * clears \b PER bit (\b PER bit, when set, states that flash is in \b Page \b  Erase mode)
   */
 void enableEEPROMWriting() {
     HAL_StatusTypeDef status = HAL_FLASH_Unlock();
-    // required to re-write
+    // required to rewrite
     FLASH_PageErase(EEPROM_START_ADDRESS);
     // Bug fix: bit PER has been set in Flash_PageErase(), must clear it here
     // (PER bit, when set, states that flash is in Page Erase mode)
