@@ -119,6 +119,8 @@ void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *save
     savedApple->y = apple_x_y & mask(8);
 
     // read Tail
+    // move back currentAddress (previously moved for checksum)
+    currentAddress -= HALF_WORD_LENGTH * (TAIL_SIZE/2 - 1);
     for(uint8_t i = 0; i < TAIL_SIZE; i+=2, savedTail++) {
         uint16_t two_segments = readEEPROMHalfWord(currentAddress);
         *savedTail = (uint16_t) (two_segments >> 8);
