@@ -26,10 +26,10 @@ void disableEEPROMWriting() {
     HAL_FLASH_Lock();
 }
 
-/** @brief Write data of max size equivalent to uint16_t size
-  * @attention Call enableEEPROMWriting() first, after write call disableERPROMWriting()
+/** @brief Write data of max size equivalent to \b uint16_t size
+  * @warning Call \b enableEEPROMWriting() first, after write call \b disableERPROMWriting()
   *
-  * @param address Points where to write specified data
+  * @param address Points where to write specified data \n
   *                (address=0 points to EEPROM_START_ADDRESS)
   * @param data Data to save
   */
@@ -41,10 +41,10 @@ HAL_StatusTypeDef writeEEPROMHalfWord(uint32_t address, uint16_t data) {
 
     return status;
 }
-/** @brief Write data of max size equivalent to uint32_t size
-  * @attention Call enableEEPROMWriting() first, after write call disableERPROMWriting()
+/** @brief Write data of max size equivalent to \b uint32_t size
+  * @warning Call \b enableEEPROMWriting() first, after write call \b disableERPROMWriting()
   *
-  * @param address Points where to write specified data
+  * @param address Points where to write specified data \n
   *                (address=0 points to EEPROM_START_ADDRESS)
   * @param data Data to save
   */

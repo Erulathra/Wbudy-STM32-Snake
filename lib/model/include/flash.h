@@ -8,6 +8,7 @@
 #include "stm32f1xx.h"
 #include "stm32f1xx_hal_flash_ex.h"
 
+#define ERASED_HALF_WORD ((uint16_t)0xFFFFFFFFFFFFFFFF)
 //#define EEPROM_START_ADDRESS   ((uint32_t)0x0801 9000) // EEPROM emulation start address: after 100KByte of used Flash memory
 //#define EEPROM_START_ADDRESS   ((uint32_t)0x0801C000) // EEPROM emulation start address: after 112KByte of used Flash memory
 #define EEPROM_START_ADDRESS   ((uint32_t)0x0801D500) // EEPROM emulation start address: after 120KByte of used Flash memory

@@ -14,6 +14,7 @@
 
 #define BOARD_SIZE 8
 #define SEGMENT_SIZE 16
+#define TAIL_SIZE 16
 
 #define STARTING_POINT_SNAKE_X 3
 #define STARTING_POINT_SNAKE_Y 0
@@ -41,7 +42,7 @@ struct Apple {
     uint8_t y;
 } apple;
 
-uint8_t tail[16];
+uint8_t tail[TAIL_SIZE];
 
 _Noreturn void GameEngineLoop();
 

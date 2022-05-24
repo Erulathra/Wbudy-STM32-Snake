@@ -11,8 +11,8 @@
 #include "flash.h"
 
 void save_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail);
-uint8_t load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail);
-uint8_t ones(uint8_t number);
+void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *savedTail);
+uint16_t ones(uint16_t number);
 uint8_t do_checksum(uint8_t calc_checksum, uint16_t read_checksum);
 
 #endif //WBUDY_STM32_SNAKE_GAME_SAVE_H
