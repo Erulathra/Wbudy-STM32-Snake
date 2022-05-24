@@ -7,6 +7,7 @@
 #include "images.h"
 #include "DS18B20.h"
 #include "ftoa.h"
+#include "buttons.h"
 
 extern TIM_HandleTypeDef tim1;
 extern TIM_HandleTypeDef tim2;
@@ -52,7 +53,7 @@ void Mode_Menu() {
     for (;;) {
         int8_t input = CheckAllButtons();
 
-        if (input == 4) {
+        if (input == MENU) {
             HAL_Delay(200);
             return;     // Go back
         }
@@ -407,7 +408,6 @@ void Snake_DrawApple() {
 
 void Snake_CanSnakeEatApple() {
     if (snake.x == apple.x && snake.y == apple.y) {
-        apple.eaten = TRUE;
 
         if (snake.tailLength < 63)
             snake.tailLength++;
@@ -417,7 +417,6 @@ void Snake_CanSnakeEatApple() {
         Snake_PutAppleOnBoard();
         return;
     }
-    apple.eaten = FALSE;
 }
 
 uint8_t CheckBit(uint8_t bit, uint8_t byte) {
@@ -464,43 +463,43 @@ int8_t Snake_TailCollision(int8_t col_with_x, int8_t  col_with_y) {
 }
 
 int8_t CheckMovementButtons() {
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) && snake.direction != SOUTH) {
+    if(CHECK_INPUT_NORTH() && snake.direction != SOUTH) {
         return NORTH;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2) && snake.direction != WEST) {
+    if(CHECK_INPUT_EAST() && snake.direction != WEST) {
         return EAST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) && snake.direction != EAST) {
+    if(CHECK_INPUT_WEST() && snake.direction != EAST) {
         return WEST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) && snake.direction != NORTH) {
+    if(CHECK_INPUT_SOUTH() && snake.direction != NORTH) {
         return SOUTH;
     }
     return snake.direction;
 }
 
 int8_t CheckAllButtons() {
-    if (!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) {
-        return 4; // menu
+    if (CHECK_INPUT_MENU()) {
+        return MENU; // menu
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) {
+    if(CHECK_INPUT_NORTH() && snake.direction != SOUTH) {
         return NORTH;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_2)) {
+    if(CHECK_INPUT_EAST() && snake.direction != WEST) {
         return EAST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3)) {
+    if(CHECK_INPUT_WEST() && snake.direction != EAST) {
         return WEST;
     }
-    if(!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) {
+    if(CHECK_INPUT_SOUTH() && snake.direction != NORTH) {
         return SOUTH;
     }
-    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) < 1000) {
-        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) + 50);
+    if (CHECK_INPUT_BRIGHT() && GET_SCREEN_BRIGHTNESS() < BRIGHTNESS_MAX) {
+        CHANGE_SCREEN_BRIGHTNESS(BRIGHTNESS_STEP);
         HAL_Delay(50);
     }
-    if (!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) && __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) >= 100) {
-        __HAL_TIM_SET_COMPARE(&tim1, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&tim1, TIM_CHANNEL_1) - 50);
+    if (CHECK_INPUT_DARK() && GET_SCREEN_BRIGHTNESS() >= BRIGHTNESS_MIN) {
+        CHANGE_SCREEN_BRIGHTNESS(-BRIGHTNESS_STEP);
         HAL_Delay(50);
     }
     return -1;
