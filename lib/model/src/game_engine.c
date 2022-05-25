@@ -59,19 +59,19 @@ void Mode_Menu() {
             return;     // Go back
         }
         if (input == NORTH) {
-            HAL_Delay(200);
-            save_game(&snake, &apple, tail);    // save game
-        }
-        if (input == SOUTH) {
-            HAL_Delay(200);
-            load_game(&snake, &apple, tail);    // load game
-        }
-        if (input == WEST) {
             Mode_Temperature();     // temp
             HAL_Delay(200);
         }
+        if (input == SOUTH) {
+            HAL_Delay(200);
+        }
+        if (input == WEST) {
+            HAL_Delay(200);
+            save_game(&snake, &apple, tail);    // save game
+        }
         if (input == EAST) {
-            return;     // funny cat <3
+            HAL_Delay(200);
+            load_game(&snake, &apple, tail);    // load game
         }
 
         for (int j = 0; j < BUFFER_COUNT; ++j) {
