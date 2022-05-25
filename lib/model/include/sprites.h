@@ -17,5 +17,6 @@ const extern uint16_t sprite_snake_head_eating_vertical[];
 const extern uint16_t sprite_snake_head_vertical[];
 const extern uint16_t snake_head_vertical_horizontal[];
 const extern uint16_t snake_head_horizontal_vertical[];
+const extern uint16_t Menu_Menu[];
 
 #endif //WBUDY_STM32_SNAKE_SPRITES_H

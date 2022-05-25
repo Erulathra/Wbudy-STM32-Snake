@@ -77,7 +77,7 @@ void Mode_Menu() {
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
-            DrawImageIntroBuffer(32, 32, 48, 48, epd_bitmap_allArray[(frameCount / 6) % 7]);
+            DrawImageIntroBuffer(4, 4, 120, 120, Menu_Menu);
 
             ST7735_DrawBuffer(bufferIndex);
         }
@@ -140,7 +140,7 @@ void Mode_GameOver() {
         for (int j = 0; j < BUFFER_COUNT; ++j) {
             bufferIndex = j;
             FillBufferWithColor(ST7735_BLACK);
-            DrawImageIntroBuffer(32, 32, 64, 64, epd_bitmap_allArray[(frameCount / 6) % 7]);
+            DrawImageIntroBuffer(32, 48, 64, 16, GameOver_allArray[(frameCount/6) % 9]);
 
             ST7735_DrawBuffer(bufferIndex);
         }
@@ -483,16 +483,16 @@ int8_t CheckAllButtons() {
     if (CHECK_INPUT_MENU()) {
         return MENU; // menu
     }
-    if(CHECK_INPUT_NORTH() && snake.direction != SOUTH) {
+    if(CHECK_INPUT_NORTH()) {
         return NORTH;
     }
-    if(CHECK_INPUT_EAST() && snake.direction != WEST) {
+    if(CHECK_INPUT_EAST()) {
         return EAST;
     }
-    if(CHECK_INPUT_WEST() && snake.direction != EAST) {
+    if(CHECK_INPUT_WEST()) {
         return WEST;
     }
-    if(CHECK_INPUT_SOUTH() && snake.direction != NORTH) {
+    if(CHECK_INPUT_SOUTH()) {
         return SOUTH;
     }
     if (CHECK_INPUT_BRIGHT() && GET_SCREEN_BRIGHTNESS() < BRIGHTNESS_MAX) {

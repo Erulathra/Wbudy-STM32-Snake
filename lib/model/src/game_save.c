@@ -98,8 +98,6 @@ void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *save
         checksum += ones(two_segments);
         currentAddress += HALF_WORD_LENGTH;
     }
-    //return to previous value
-    currentAddress = currentAddressTemp;
 
     //if checksum is incorrect, erase save and return
     if(do_checksum(checksum, readEEPROMHalfWord(currentAddress)) == 0) {
@@ -107,6 +105,8 @@ void load_game(struct Snake *savedSnake, struct Apple *savedApple, uint8_t *save
         disableEEPROMWriting();
         return;
     }
+    //return to previous value
+    currentAddress = currentAddressTemp;
 
     // read Snake
     // bitwise shift gets rid of last 8 bytes

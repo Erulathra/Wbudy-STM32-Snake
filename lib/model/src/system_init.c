@@ -250,7 +250,7 @@ void ADC_INIT(void) {
 
     RCC_PeriphCLKInitTypeDef adc_clk;
     adc_clk.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-    adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+    adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV6;
     HAL_RCCEx_PeriphCLKConfig(&adc_clk);
 
     adc.Instance = ADC1;
