@@ -160,7 +160,7 @@ void Mode_GameOver() {
 void Mode_Snake(uint64_t frameCount) {
     snake.direction = CheckMovementButtons();
 
-    if (!(frameCount % 100))
+    if (!(frameCount % 50))
         gameSpeed = Snake_Change_Speed();
 
     if (!(frameCount % gameSpeed)) {
@@ -432,7 +432,7 @@ int8_t Snake_GameOver() {
         return FALSE;
 }
 
-int8_t Snake_TailCollision(int8_t col_with_x, int8_t  col_with_y) {
+int8_t Snake_TailCollision(int8_t col_with_x, int8_t col_with_y) {
     uint8_t pos_x = snake.x;
     uint8_t pos_y = snake.y;
 

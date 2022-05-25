@@ -23,5 +23,6 @@ void SPI_INIT();
 void TIM_INIT();
 void DMA_Init(void);
 void PWM_INIT(void);
+void ADC_INIT(void);
 
 #endif //WBUDY_STM32_SNAKE_SYSTEM_INIT_H

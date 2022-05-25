@@ -37,6 +37,7 @@ int main(void) {
     TIM_INIT();
     HAL_SPI_MspInit(&spi);
     PWM_INIT();
+    ADC_INIT();
 
     if (HAL_SPI_Init(&spi) != HAL_OK) {
     }

@@ -243,10 +243,16 @@ void PWM_INIT(void) {
     HAL_TIM_PWM_ConfigChannel(&tim1, &oc, TIM_CHANNEL_1);
 
     HAL_TIM_PWM_Start(&tim1, TIM_CHANNEL_1);
+}
 
+void ADC_INIT(void) {
     __HAL_RCC_ADC1_CLK_ENABLE();
 
-    //ADC_HandleTypeDef adc;
+    RCC_PeriphCLKInitTypeDef adc_clk;
+    adc_clk.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+    adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+    HAL_RCCEx_PeriphCLKConfig(&adc_clk);
+
     adc.Instance = ADC1;
     adc.Init.ContinuousConvMode = ENABLE;
     adc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
